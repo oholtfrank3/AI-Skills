@@ -22,10 +22,11 @@ To use a single skill without the plugin, copy its folder from `skills/` into `~
 | `eom-cc` | EOM-CCSD EE / IP / DIP and CAP-EOM in Q-Chem and PySCF. |
 | `sharc` | Surface hopping, Ehrenfest and CSDM dynamics in SHARC: settings, energy conservation, restarts, ensembles on PACE. |
 | `tides` | Real-time TDDFT, hole dynamics and Ehrenfest runs in TiDES: spectra, restarts, known bugs, PACE. |
+| `pyopencap` | Projected CAP widths with OpenCAP/pyopencap: setup from Q-Chem, pitfalls, and where it has not worked. |
 | `troubleshooting` | When something fails or is unfamiliar: search docs, forums and literature first. Per-code doc links, starter test calculations and known issues. |
 | `pace-slurm` | Submitting and diagnosing jobs on PACE Phoenix. |
 | `reporting-computational-results` | A checklist Claude runs before telling you any number or conclusion from a calculation: status updates, results tables, convergence and comparison claims. |
 | `scientific-plot-style` | Group figure style (matplotlib). |
 | `blender-molecular-rendering` | Publication renders of molecules and clusters in Blender. |
 
-Planned: `pyopencap`, plus a planner agent and input-checking scripts.
+Planned: a planner agent and input-checking scripts.

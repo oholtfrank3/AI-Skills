@@ -17,7 +17,7 @@ Broken into observables:
 |---|---|---|---|
 | Site hole energies | EOM-IP-CCSD/aug-cc-pVDZ on hole-centred clusters, Dyson + Pipek–Mezey localized | couplings vs MRCI+Q on Ar₂ (18.1 vs 17.5 meV); cluster-size convergence of the water shift (−357 vs −355 meV) | SA-CASSCF/cc-pVDZ compressed site offsets ~2× (too little polarization) |
 | Channel open/closed | experimental fragment IPs + computed environment shifts | monomer IPs at EOM-IP-CCSD, EOM-IP-CCSD*, ΔCCSD(T), aDZ→aQZ against experiment | raw EOM hole energy was +0.6 eV off; using it made the margins meaningless |
-| Widths | CAP-EOM-IP-CCSD with deperturbed η trajectories and a null control | relative widths across geometries reproduced, not just distance trends | projected CAP (pyopencap) 10²–10⁴× off; the in-method 2h1p threshold was ~1.5 eV too low |
+| Widths | CAP-EOM-IP-CCSD with deperturbed η trajectories and a null control | relative widths across geometries reproduced, not just distance trends | projected CAP (pyopencap): uncorrected widths 15–300× too large and corrected ≈ 0 at 5–10 states, ≥ 20 states never finished; complex basis functions gave negative widths; the in-method 2h1p threshold was ~1.5 eV too low |
 | Migration | DIM model Hamiltonian (one hole state per Ar, self-consistent polarization) validated against EOM-CC, dynamics with CSDM in SHARC | blind EOM water shifts, MAE 4.5 meV; FSSH-EDC vs CSDM contact weight 0.19 vs 0.20 | RT-TDDFT and Ehrenfest (TiDES, CASSCF) self-trapped the hole and collapsed the water onto Ar |
 
 ## The general lessons
