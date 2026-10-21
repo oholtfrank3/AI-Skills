@@ -8,7 +8,8 @@ Settings and lessons from one project. Copy the reasoning, not the numbers. Path
   - Gradients come for all states (state densities U_kU_kᵀ), and couplings from transition densities.
   - The water rows are projected onto rigid-body motion (`DIM_RIGIDPROJ=1`).
   - RATTLE keeps the water rigid.
-- **Contradiction in the notes:** the interface is called "in-memory" in the methods write-up and "file-based" in the calculation list and handoff. It is driven through QM.in/QM.out.
+- **How the link works (confirmed Oct 21 by the surface-hopping agent):** file-based per step, with a persistent server. SHARC calls `QM/runQM.sh` → `qm_client.py`, which pings the server through `QM/req.fifo`. The server reads `QM/QM.in`, writes `QM/QM.out` (H diagonal, zero dipoles, overlaps, all gradients) and answers on `QM/resp.fifo`. "In-memory" in the methods write-up only means the DIM model is loaded once per run, with U and sign-chain state kept in `Ucur.npy`, `Uprev.npy` and `key.txt`.
+- **`SHARC_EXACTFORCE=1`:** the server also reads SHARC's amplitudes from `QM/coeff.dat`, builds F = Σ Re(ρ_ij)⟨i|∇H|j⟩ plus the neutral and water terms (rigid-water projected), and writes `QM/force.dat` in Ha/bohr. `sharc_force.x` uses that as the nuclear force.
 - **Binaries:**
   - `sharc_lite.x`: restart every K steps.
   - `sharc_exact.x`: coherence-force rescale removed.

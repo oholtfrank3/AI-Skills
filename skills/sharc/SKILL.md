@@ -54,9 +54,9 @@ Check each keyword against the manual of the SHARC version you run.
   | patched (rescale removed) + `nacdr` | +12.1 | +7.9 | +1.4 | — |
   | exact force computed in the interface | −0.7 | — | — | — |
 
-  The patch removes a two-line rescale in `qm.f90` (~line 1371); no keyword is equivalent (`coupling ddr` is a weaker fallback). `nacdr` on its own, with the stock binary, did **not** help. The best route is to compute the exact force in the interface (group binary `sharc_force.x`, `SHARC_EXACTFORCE=1`). It agreed with the patched result to ~1 meV and was 2.6–3.5× faster.
+  The patch removes a two-line rescale in `qm.f90` (~line 1371); no keyword is equivalent (`coupling ddr` is a weaker fallback). `nacdr` on its own, with the stock binary, did **not** help. The best route is to compute the exact force in the interface (group binary `sharc_force.x`, `SHARC_EXACTFORCE=1`). It agreed with the patched result to ~1 meV and was 2.6–3.5× faster. **This only works when the interface can return the density-weighted exact force Σ Re(ρ_ij)⟨i|∇H|j⟩**, as a model Hamiltonian can. A typical ab initio overlap interface gives only state gradients. There, use the patched binary with derivative couplings (`nacdr`).
 - **A smaller time step hides the bug, it does not fix it.** "DT too coarse" was tested and refuted as the cause. Production used DT 0.25 fs (CSDM) and 1 fs (FSSH).
-- **Energy jump right after a hop with `grad_select`:** in SHARC 3.0.2 the gradient is zero on the step after a hop, which gives an energy jump (sharc-md/sharc issue #112). It was fixed on `main` in May 2024 but not in any 3.x release. Avoid `grad_select` with 3.0.2, or build from a patched `main`.
+- **Energy jump right after a hop with `grad_select`.** The group's FSSH and FSSH-EDC pilots wrote `grad_select`; the CSDM production runs did not. In SHARC 3.0.2 the gradient is zero on the step after a hop, which gives an energy jump (sharc-md/sharc issue #112). It was fixed on `main` in May 2024 but not in any 3.x release. Avoid `grad_select` with 3.0.2, or build from a patched `main`.
 - **`diagnostics.py` defaults are loose** (a 0.2 eV energy window). Set the thresholds to your own tolerance (§4) instead of trusting its pass/fail.
 - **A misspelled keyword is silently ignored.** Check the echo of the input in `output.log`.
 - **Keep `nsubsteps` at 25.** 5 or 10 saved no time and made drift worse.
@@ -109,5 +109,6 @@ Check each keyword against the manual of the SHARC version you run.
 - Tully models 1–3 benchmark.
 - Census of frustrated hops (no parser yet).
 - Residual +9–12 meV drift at DT 1 fs after patching.
+- Whether the `grad_select` bug caused part of the per-hop energy losses in the FSSH pilots. Cheap test: rerun one pilot without `grad_select`.
 - Precedent for absorbing boundaries in SH/CSDM (`sharc_abs.x`; see the reference file).
 - Written justification that the force patch restores the published CSDM equations (`~/writeup_notes/csdm_patch_and_rim.md` on PACE).
