@@ -5,34 +5,54 @@ description: Set up and use Blender with Claude (live MCP connection or headless
 
 # Blender for molecular figures (Kretchmer group notes)
 
-Two ways to drive Blender. **Headless is the reliable default**; the live connection is nice for interactive tweaking but took hours to get working the first time. If live is not connected, say so and fall back to headless; do not burn time debugging it mid-task.
+Two ways to drive Blender. **Headless is the reliable default**; the live connection is nice for interactive tweaking and for letting Claude look at the scene itself. If live is not connected, say so and fall back to headless; do not burn time debugging it mid-task.
 
-## 1. Live connection (Blender Lab MCP), macOS
+## 1. Live connection, macOS
 
-What finally worked (Blender 5.x):
-1. **Blender** 5.1+ (we use 5.2 LTS) in `/Applications/Blender.app`.
-2. **Blender add-on "MCP"** (Blender Lab, v1.0.3+): Blender > Preferences > Get Extensions > Repositories > add `https://lab.blender.org/`, then install and enable **MCP**. Lands in `~/Library/Application Support/Blender/<ver>/extensions/lab_blender_org/mcp/`.
-3. **Preferences > System > Allow Online Access must be ON.** The bridge refuses to start offline ("Online access must be enabled in the system preferences") even though it only listens on localhost. For command-line Blender pass `--online-mode`. This is the most likely hidden blocker.
-4. In the add-on prefs: Host `localhost`, Port `9876`, turn on **Auto Start** (or start the server by hand each session). Blender must stay open with the GUI running.
-5. **MCP server side.** This is the *Blender Lab* server (`https://projects.blender.org/lab/blender_mcp`, package `blender-mcp`, module `blmcp`, Python >= 3.10, run with `uv`). It is NOT the community `ahujasid/blender-mcp`; do not mix the two (different add-on, different protocol).
-   - Claude Desktop: install the "Blender" desktop extension (Blender Lab). It runs `uv run blender-mcp` from its own folder under `~/Library/Application Support/Claude/Claude Extensions/`. No `mcpServers` entry is needed in `claude_desktop_config.json`.
-   - Claude Code does NOT inherit Desktop connectors. Give it an MCP config file:
-     ```json
-     {"mcpServers":{"blender":{"command":"uv","args":["run","--directory","<path to the extension folder containing pyproject.toml>","blender-mcp"]}}}
-     ```
-     and start `claude --mcp-config blender_mcp.json`. `uv`/`uvx` must be on PATH (`~/.local/bin`).
-   - Env overrides: `BLENDER_MCP_HOST`, `BLENDER_MCP_PORT`.
-6. **Verify, in this order:**
-   - `lsof -nP -iTCP:9876 -sTCP:LISTEN` shows Blender listening. (Other apps use nearby ports, e.g. Zotero on 19876; don't misread it.)
-   - In Claude, call a read-only tool such as `get_objects_summary`. A Desktop session can have the connector enabled yet no Blender tools in that particular chat: start a new chat/session after enabling.
+### Root cause of our multi-hour failure (Oct 2026): wrong add-on
+The community add-on `ahujasid/blender-mcp` (GitHub `addon.py` + `uvx blender-mcp` in `claude_desktop_config.json`) failed silently: calls connected but hung forever. **Switching to the official Blender Lab MCP connector fixed it instantly**; the first `get_objects_summary` call worked. Use the official one and nothing else.
 
-Error -> fix:
-| Message | Fix |
-|---|---|
-| `Cannot connect to Blender at localhost:9876 ...` | Blender not open, add-on disabled, or server not started: open Blender, enable MCP, start server / Auto Start |
-| `Online access must be enabled in the system preferences` | Preferences > System > Allow Online Access (or `--online-mode`) |
-| Tools missing in Claude | new session after enabling; Claude Code needs its own `--mcp-config` |
-| Relaunched Claude Code loses transcripts | strip inherited `CLAUDE*` / `ANTHROPIC*` env vars before relaunching from inside another session |
+### Correct install (official Blender Lab connector)
+1. **Blender 5.1+** (we use 5.2 LTS, `/Applications/Blender.app`).
+2. **Remove the community add-on completely first.** Both listen on port 9876 and conflict. Uninstall it in Preferences > Add-ons, and delete any leftover copy under Blender's `scripts/addons`. Also remove any `blender-mcp` / `uvx` entry from `claude_desktop_config.json`.
+3. **Claude Desktop:** Customize > Connectors > search "Blender" > add it. A plain "Blender — Desktop" entry may already be listed. This installs the Blender Lab server (`blender-mcp` package, module `blmcp`, run with `uv`; source `https://projects.blender.org/lab/blender_mcp`). No `mcpServers` entry is needed in `claude_desktop_config.json`.
+4. **Blender add-on:** on blender.org's MCP server page, drag the "Drag and Drop into Blender" box onto the open Blender window **twice**. The first drag adds the lab extension repository (accept the dialog). The second drag installs the add-on. The repository is `https://lab.blender.org/`; it can also be added by hand under Preferences > Get Extensions > Repositories.
+5. **Edit > Preferences > Add-ons:** find "MCP" (v1.0.3, two-person icon), enable it, expand it, and confirm "Server is running" on `localhost:9876`. It also has its own settings (Timer Interval, Idle Delay, Auto Start).
+6. If the server will not start and reports `Online access must be enabled in the system preferences`, enable Preferences > System > Allow Online Access (or pass `--online-mode` to command-line Blender). This message is in the add-on code. It was not our problem, but it is a possible blocker.
+7. **Claude Code** does NOT inherit Desktop connectors. Give it an MCP config file:
+   ```json
+   {"mcpServers":{"blender":{"command":"uv","args":["run","--directory","<extension folder containing pyproject.toml>","blender-mcp"]}}}
+   ```
+   and start `claude --mcp-config blender_mcp.json`. `uv` must be on PATH (`~/.local/bin`). Env overrides: `BLENDER_MCP_HOST`, `BLENDER_MCP_PORT`.
+
+### Verify
+- `lsof -nP -iTCP:9876 -sTCP:LISTEN`: only Blender should be listening. Zotero uses 19876; don't misread it.
+- Call a read-only tool (`get_objects_summary`). A Desktop chat can have the connector enabled but no Blender tools; start a new chat after enabling.
+
+### Diagnosing a hang (how we found the root cause)
+- **Start Blender from a terminal** (`/Applications/Blender.app/Contents/MacOS/Blender`) to see its console. A healthy call shows `Connected to client` > `Client handler started` > `Queued command: ...`. Our broken case showed `Connected to client` > `Client handler started` > `Client disconnected` with **no `Queued command:` line**: the client connected but never sent a parseable command.
+- **Read `~/Library/Logs/Claude/mcp-server-Blender.log`.** If `initialize`, `tools/list`, `prompts/list` and `resources/list` appear but there is **no `method="tools/call"` line** for the hanging call, the request never reached the server. That means a client/connector problem, not Blender.
+- An instant `cannot connect to localhost:9876` means Blender, the add-on, or its server is not running. A *hang* after connecting means the wrong or broken add-on/server pair.
+
+### False leads (none of these fixed it; skip them)
+- macOS App Nap (`defaults write`, `caffeinate`).
+- Stale port/socket (`lsof -ti :9876 | xargs kill -9`). Worth doing as cleanup, but not the fix.
+- IPv6 / firewall.
+- Claude Desktop's "Use built-in Node.js for MCP" toggle (suggested online; unverified).
+- Patching `bl_info` `blender` from (4,0,0) to (5,0,0). That field is a minimum version, not a maximum.
+- Restarting Claude Desktop (Cmd-Q) or re-approving permissions.
+- Community add-on naming: its sidebar tab is "MCP for Blender" (N-panel > Connect to Claude), installed via Add-ons > dropdown > Install from Disk. Irrelevant once you use the official connector.
+
+### Fallbacks while live is down
+- The `*_for_cli` Blender MCP tools work headless on a saved `.blend` file, with no socket and no add-on. Save the scene (File > Save As) to make this possible.
+- Plain headless `bpy` scripts (section 2).
+- A simple file-watcher bridge script (Blender polls a folder for scripts to run) worked as a stopgap.
+
+### Once live works
+- **Look at the scene yourself** with `get_screenshot_of_window_as_image` instead of asking the user for screenshots. That is how we caught the next two bugs.
+- **Viewport shading on SOLID ignores material colours.** Switch to Material Preview or Rendered before judging colours.
+- **Camera framing:** fit the view with `tan(fov/2)`, not `sin`; using sin made every render too small. With an orthographic camera, set `ortho_scale` from the object extent.
+- Other gotcha: a relaunched Claude Code session started from inside another session loses its transcript unless the inherited `CLAUDE*` / `ANTHROPIC*` env vars are stripped first.
 
 ## 2. Headless rendering (default)
 
