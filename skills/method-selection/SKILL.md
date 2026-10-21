@@ -9,18 +9,43 @@ The user may not be an expert. Do not jump to an input file. Find out what they 
 
 The examples below mostly come from one project (Ar 3s holes and ICD/ETMD at an Ar(111)–water interface). `references/worked-example-ar-water.md` shows how that project's choices were made. Treat a lesson from there as a warning to check, not as a general law.
 
-## 1. Interview first (ask, then summarise back)
+## 1. Have a conversation, not a questionnaire
 
-Ask only what you cannot infer. Group the questions into a single message. Do not ask them one at a time.
+Assume the person may be new to Claude, to running jobs, and possibly to computational chemistry. A wall of options is overwhelming. Talk to them the way a helpful senior grad student would at a whiteboard.
 
-1. **System:** atoms/molecules, size, charge and spin, gas phase / cluster / surface / solution. Is there a geometry file?
-2. **Process:** what happens physically. Pick one of: absorption/excitation, ionization, double ionization, decay of a metastable state (ICD, ETMD, Auger, autoionization, shape resonance), charge or hole migration, nuclear motion after excitation, a property at fixed geometry.
-3. **Observable:** the number that answers the question. Examples: an energy (eV), a spectrum, a width Γ / lifetime τ, populations vs time, branching ratios, a kinetic-energy distribution.
-4. **Timescale:** attoseconds (electrons only) / femtoseconds (electrons + light nuclei) / picoseconds (nuclei matter) / static.
-5. **Accuracy needed:** a trend or ordering (~0.1–0.3 eV is fine), or a number to compare with experiment (needs triples or a focal-point correction and an error bar)?
-6. **Budget and deadline:** core-hours or GPU-hours available, and when the answer is needed.
+**How each message should look:**
+- **One question per message**, or two if they are tightly linked. Keep the message to a few short sentences.
+- **Plain words first.** Say "how strongly the two molecules stick together" before "binding energy". Introduce a technical term only when the user needs it, and explain it in one clause.
+- **Offer 2–3 concrete choices** in everyday terms, plus "not sure". When one choice is the usual starting point, say so, so "not sure" is easy to answer.
+- **Do not preview the method,** the cost or the traps while you are still asking. Do not explain how each answer would change the plan.
+- **Start from what they said.** Briefly reflect it back ("Two benzene rings next to each other, got it.") before the next question.
+- **Infer what you can** from the system and their wording, and skip those questions. Fill in sensible defaults and mention them later, in the plan.
 
-Then write back a 3–5 line restatement: "You want X for system Y, observed as Z, to accuracy W." Get a yes before planning.
+**What you need to find out, roughly in this order** (stop once the picture is clear):
+1. **What they want to learn.** Ask about the physical question in plain terms: how strongly things stick, what colour of light it absorbs, what happens after an electron is knocked out, how something moves over time. This sets the process and the observable.
+2. **Which state or situation**, if it is still ambiguous after (1): ground state, after absorbing light, after ionization.
+3. **What answer would satisfy them:** one number, a comparison between a few arrangements, a curve, a spectrum, or a movie in time.
+4. **How accurate it needs to be:** "a rough trend for a group meeting" vs "a number to compare with an experiment or a paper".
+5. **Practicalities, at the end:** do they have structures, do they have a PACE allocation, and when do they need it. If they don't know, offer to work it out with them.
+
+For the expert vocabulary behind these questions, see the internal checklist below. Use it to steer the conversation; never show it to the user as a list.
+
+<details><summary>Internal checklist (do not paste to the user)</summary>
+
+- System: atoms/molecules, size, charge and spin, environment (gas / cluster / surface / solution), geometry available?
+- Process: excitation, ionization, double ionization, decay of a metastable state (ICD, ETMD, Auger, autoionization, shape resonance), charge or hole migration, nuclear motion after excitation, a static property.
+- Observable: energy, spectrum, width Γ / lifetime τ, populations vs time, branching ratios, kinetic-energy distribution.
+- Timescale: attoseconds / femtoseconds / picoseconds / static.
+- Accuracy: trend (~0.1–0.3 eV or ~0.3 kcal/mol) vs comparison with experiment (triples, basis extrapolation, error bars).
+- Budget: core- or GPU-hours, deadline.
+
+</details>
+
+**When the picture is clear,** restate it in two or three plain sentences ("So you'd like to know how strongly two benzene rings stick together in a few common arrangements, roughly, for a group meeting next week. Is that right?"). Get a yes before planning.
+
+**Example of a good first reply** to "I want to look at the energetics of the benzene dimer":
+
+> Nice system. Benzene dimers are a classic test case. To point you the right way: are you mostly interested in **how strongly the two rings stick together** (and which way of stacking them is most stable), or in what happens when the dimer **absorbs light or loses an electron**? If you're not sure, the first one is the usual place to start.
 
 ## 2. Process → method
 
@@ -30,10 +55,10 @@ Then write back a 3–5 line restatement: "You want X for system Y, observed as 
 | Ionization energies, hole states | EOM-IP-CCSD | ΔSCF, ADC(2) | EOM-IP-CCSD*, ΔCCSD(T), focal-point basis extrapolation | `eom-cc` |
 | Dications, two-hole final states | EOM-DIP-CCSD | ΔSCF / ΔMP2 | ΔCCSD(T) (for the lowest state per symmetry) | `eom-cc` |
 | Is a decay channel open? | compare hole energy vs final-state energy, both at the **correlated** level | — | triples + basis-extrapolated ends of the channel | `eom-cc` |
-| Decay width Γ / lifetime (ICD, ETMD, Auger, resonances) | CAP-EOM-CCSD (Q-Chem) with η trajectories | Fermi-golden-rule / virtual-photon estimates for trends | Fano-ADC + Stieltjes (not on PACE) | `eom-cc` §5; `pyopencap` (pending) |
-| Electron dynamics, attosecond charge migration, field-driven response | RT-TDDFT in TiDES | — | TD-CASCI (no self-interaction error) | `tides` (pending) |
-| Electrons + nuclei, fs–ps, few-atom system | surface hopping (SHARC) on ab initio states | Ehrenfest (TiDES) | multiple decoherence schemes; FSSH vs CSDM | `sharc` (pending) |
-| Hole/charge transport in a large cluster, surface or solid | model Hamiltonian (e.g. DIM) parametrized and validated on EOM-CC, dynamics in SHARC | static site-energy map from EOM-IP clusters | blind validation points the model never saw | `sharc` (pending) |
+| Decay width Γ / lifetime (ICD, ETMD, Auger, resonances) | CAP-EOM-CCSD (Q-Chem) with η trajectories | Fermi-golden-rule / virtual-photon estimates for trends | Fano-ADC + Stieltjes (not on PACE) | `eom-cc` §5; `troubleshooting` → `references/pyopencap.md` (no group skill yet) |
+| Electron dynamics, attosecond charge migration, field-driven response | RT-TDDFT in TiDES | — | TD-CASCI (no self-interaction error) | `tides` |
+| Electrons + nuclei, fs–ps, few-atom system | surface hopping (SHARC) on ab initio states | Ehrenfest (TiDES) | multiple decoherence schemes; FSSH vs CSDM | `sharc` |
+| Hole/charge transport in a large cluster, surface or solid | model Hamiltonian (e.g. DIM) parametrized and validated on EOM-CC, dynamics in SHARC | static site-energy map from EOM-IP clusters | blind validation points the model never saw | `sharc` |
 
 A skill marked **pending** does not exist yet. For those codes, tell the user that the plan needs review by someone who runs that code. Do not fill the gap with generic advice presented as group practice.
 
@@ -57,7 +82,9 @@ A skill marked **pending** does not exist yet. For those codes, tell the user th
 
 ## 5. Output: the plan
 
-Write the plan to `PLAN_<short-name>.md` in the user's working directory and summarise it in chat. Include:
+Write the full plan to `PLAN_<short-name>.md` in the user's working directory. **In chat, keep it short:** say in two or three plain sentences what you suggest running first and why, roughly how long it will take, and point them to the file for details. Then ask one question, usually "Does that sound right, or should we change anything?" Walk through the details only if they ask.
+
+The plan file should include:
 
 - **Question:** the restatement agreed in §1.
 - **Method and code**, plus one sentence on why it fits this process and observable, and what it cannot capture.

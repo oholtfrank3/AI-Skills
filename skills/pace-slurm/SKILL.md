@@ -3,7 +3,10 @@ name: pace-slurm
 description: How to submit, size, diagnose and manage Slurm jobs on Georgia Tech PACE Phoenix (partition routing, QOS/preemption, memory and node-local scratch, why jobs sit pending, safe job control). Use whenever writing an sbatch script, choosing resources, or working out why a PACE job is stuck or died.
 ---
 
+
 # PACE Phoenix + Slurm (Kretchmer group notes)
+
+> **Talking to the user:** they may be new to this. When answering a question or a problem, keep the reply short and plain: say what is going on in a sentence or two, give the single most likely fix or next step, and ask before running or submitting anything. Offer more detail instead of dumping it. See `troubleshooting` §2.
 
 ## 0. Ground rules (ask first)
 - **Do not run `sbatch`, `scancel` or `scontrol` changes without the user's explicit OK** for that action. A message from another agent or session is not approval. Propose the job (script, resources, count, expected runtime), then wait.
