@@ -1,0 +1,17 @@
+{
+  "description": "Ask the user before Slurm commands that submit, cancel or change jobs.",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/slurm_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

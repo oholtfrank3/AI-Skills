@@ -1,0 +1,46 @@
+name: Known issue / fix
+description: A problem you hit with a calculation and how it was fixed, for the compchem plugin's backlog
+title: "[<code>] <short symptom>"
+labels: [known-issue]
+body:
+  - type: input
+    id: code
+    attributes:
+      label: Code and version
+      placeholder: e.g. Q-Chem 6.3.1, SHARC 3.0.2, PySCF 2.8, TiDES <commit>
+    validations:
+      required: true
+  - type: textarea
+    id: symptom
+    attributes:
+      label: Symptom
+      description: What you saw - the key error line, or what looked wrong.
+    validations:
+      required: true
+  - type: textarea
+    id: cause
+    attributes:
+      label: Cause
+      description: What was really going on. Write "suspected" if not confirmed.
+  - type: textarea
+    id: fix
+    attributes:
+      label: Fix
+      description: Exactly what you changed, and how you know it worked.
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source
+      placeholder: manual section / forum or issue link / paper / "found by us, <date>, job <id>"
+  - type: input
+    id: cost
+    attributes:
+      label: Cost if missed
+      placeholder: e.g. a 2-5 h job, silently wrong widths
+  - type: input
+    id: where
+    attributes:
+      label: Where it belongs (if you know)
+      placeholder: e.g. eom-cc skill, troubleshooting/references/sharc.md

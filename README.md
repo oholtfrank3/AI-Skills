@@ -14,6 +14,22 @@ Older versions: `/plugin marketplace add oholtfrank3/AI-Skills`, then `/plugin i
 
 To use a single skill without the plugin, copy its folder from `skills/` into `~/.claude/skills/`.
 
+## Getting started
+
+Type `/compchem:start` and describe what you want to model, or what went wrong, in your own words.
+
+| Command | What it does |
+|---|---|
+| `/compchem:start` | The front door: Claude asks what you want to model and guides you to a plan. |
+| `/compchem:log-fix` | After a problem is solved, save the fix to the group's shared backlog (a GitHub issue). |
+| `/compchem:merge-fixes` | For maintainers: fold the reported fixes into the skills. |
+
+**Safety:** the plugin includes a hook that makes Claude ask you before any Slurm command that submits, cancels or changes jobs (`sbatch`, `scancel`, `scontrol update/hold/…`). Read-only commands such as `squeue` and `sbatch --test-only` run without asking.
+
+## Contributing fixes
+
+Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or open a "Known issue / fix" issue on GitHub. Maintainers merge these into the skills regularly.
+
 ## Skills
 
 | Skill | Use it for |
@@ -29,4 +45,8 @@ To use a single skill without the plugin, copy its folder from `skills/` into `~
 | `scientific-plot-style` | Group figure style (matplotlib). |
 | `blender-molecular-rendering` | Publication renders of molecules and clusters in Blender. |
 
-Planned: a planner agent and input-checking scripts.
+Planned: input-checking scripts, a getting-started guide for new Claude users, and a basics skill (DFT, basis sets, geometry optimization).
+
+## Testing the plugin
+
+`evals/` holds test questions with grading checklists. Run `claude plugin eval . --runs 3` from the repo root to compare answers with and without the plugin. Run it after editing a skill.

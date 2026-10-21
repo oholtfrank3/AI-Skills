@@ -49,6 +49,6 @@ Each file has official documentation links with keyword summaries, a few **start
 
 ## 4. Grow the backlog
 
-When a problem gets solved, add it to the reference file for that code, under "Known issues and fixes": symptom → cause → fix, with the source link (or "found by us", with date and job ID), so the next person finds it in step 2. If it cost real compute time, also add it to the group's skill for that code. Ask the user before editing the repo.
+When a problem gets solved, offer once, in one line: "Want me to save this fix to the group's backlog so the next person finds it?" On yes, follow `/compchem:log-fix`. It drafts a symptom → cause → fix entry, shows it to the user, and files it as a `known-issue` issue on the plugin repo. Do not edit the installed plugin's files directly. A maintainer folds the issues into the reference files and skills with `/compchem:merge-fixes`.
 
 Each reference file records the date it was researched. If that is more than about six months ago, or the installed code version is newer, search again before trusting it.
