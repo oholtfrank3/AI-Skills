@@ -1,0 +1,14 @@
+{
+  "name": "kretchmer-ai-skills",
+  "description": "Kretchmer group (Georgia Tech) Claude Code plugins for computational chemistry.",
+  "owner": {
+    "name": "Kretchmer group, Georgia Tech"
+  },
+  "plugins": [
+    {
+      "name": "compchem",
+      "source": "./",
+      "description": "Method selection, input checks, PACE job handling and reporting for the group's computational chemistry codes."
+    }
+  ]
+}
