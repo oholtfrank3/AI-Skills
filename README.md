@@ -37,6 +37,7 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 | Skill | Use it for |
 |---|---|
 | `method-selection` | Turning "I want to model X in system Y" into a calculation plan: method, benchmarks, cost, known traps. Start here. |
+| `basics` | Routine calculations: geometry optimization, frequencies, choosing a functional and basis, interaction energies and counterpoise. |
 | `eom-cc` | EOM-CCSD EE / IP / DIP and CAP-EOM in Q-Chem and PySCF. |
 | `sharc` | Surface hopping, Ehrenfest and CSDM dynamics in SHARC: settings, energy conservation, restarts, ensembles on PACE. |
 | `tides` | Real-time TDDFT, hole dynamics and Ehrenfest runs in TiDES: spectra, restarts, known bugs, PACE. |
@@ -51,7 +52,7 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 
 `scripts/check_qchem_input.py` and `scripts/check_sbatch.py` catch mistakes that have already cost the group jobs: incomplete mixed-basis lists, loose Davidson convergence for CAP, scratch on shared storage, missing accounts, embers preemption and partition routing. Claude runs them before proposing a job, and you can run them yourself: `python3 scripts/check_sbatch.py job.sbatch`.
 
-Planned: a basics skill (DFT, basis sets, geometry optimization).
+Planned: more codes the group uses (e.g. OpenMolcas/CASSCF), contributed by the people who run them.
 
 ## Testing the plugin
 
