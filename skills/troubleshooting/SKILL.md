@@ -1,6 +1,6 @@
 ---
 name: troubleshooting
-description: What to do when a calculation fails, crashes, does not converge, is missing roots or states, prints an unfamiliar error or keyword, gives results that look wrong, or you are unsure how a code (Q-Chem, PySCF, Psi4, pyopencap/OpenCAP, SHARC, TiDES) handles something. Search the official docs, then the code's forum and issue tracker, then the literature, BEFORE guessing a fix or submitting a test job. Includes per-code reference files with documentation links, starter calculations and known issues collected from forums. Also use when someone asks for a simple test calculation to check their setup.
+description: What to do when a calculation fails, crashes, does not converge, is missing roots or states, prints an unfamiliar error or keyword, gives results that look wrong, or you are unsure how a code (Q-Chem, PySCF, Psi4, CP2K, pyopencap/OpenCAP, SHARC, TiDES) handles something. Search the official docs, then the code's forum and issue tracker, then the literature, BEFORE guessing a fix or submitting a test job. Includes per-code reference files with documentation links, starter calculations and known issues collected from forums. Also use when someone asks for a simple test calculation to check their setup.
 ---
 
 # Troubleshooting: search first, then fix (Kretchmer group notes)
@@ -47,6 +47,7 @@ Each file has official documentation links with keyword summaries, a few **start
 | Q-Chem / PySCF EOM-CC and CAP-EOM | `references/qchem-pyscf-eomcc-cap.md` |
 | PySCF (SCF/DFT, CASSCF, geometry, performance) | `references/pyscf.md` |
 | Psi4 (SAPT, counterpoise, CBS) | `references/psi4.md` |
+| CP2K (periodic DFT, AIMD) | `references/cp2k.md` |
 | pyopencap / OpenCAP (projected CAP) | `references/pyopencap.md` |
 | SHARC | `references/sharc.md` |
 | TiDES and real-time TDDFT | `references/tides.md` |

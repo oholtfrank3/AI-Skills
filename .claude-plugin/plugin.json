@@ -1,6 +1,6 @@
 {
   "name": "compchem",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Kretchmer group computational chemistry assistant: choosing a method for a physical process, setting up and checking EOM-CC / CAP / TiDES / SHARC calculations, running them on PACE, and reporting results.",
   "author": {
     "name": "Kretchmer group, Georgia Tech"

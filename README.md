@@ -14,6 +14,8 @@ Older versions: `/plugin marketplace add oholtfrank3/AI-Skills`, then `/plugin i
 
 To use a single skill without the plugin, copy its folder from `skills/` into `~/.claude/skills/`.
 
+See [CHANGELOG.md](CHANGELOG.md) for what's new.
+
 ## Getting started
 
 New to Claude? Read [GETTING_STARTED.md](GETTING_STARTED.md) first: installing Claude Code, installing this plugin, and connecting to PACE safely.
@@ -41,6 +43,7 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 | `basics` | Routine calculations: geometry optimization, frequencies, choosing a functional and basis, interaction energies and counterpoise. |
 | `pyscf` | PySCF scripts: SCF/DFT convergence, spin and charge, CASSCF, geometry optimization, performance on PACE. |
 | `psi4` | Psi4: SAPT energy decomposition, counterpoise and n-body, CBS extrapolation, running on PACE. |
+| `cp2k` | CP2K: periodic and condensed-phase DFT, AIMD, cutoff convergence, SCF problems, running on PACE. |
 | `eom-cc` | EOM-CCSD EE / IP / DIP and CAP-EOM in Q-Chem and PySCF. |
 | `sharc` | Surface hopping, Ehrenfest and CSDM dynamics in SHARC: settings, energy conservation, restarts, ensembles on PACE. |
 | `tides` | Real-time TDDFT, hole dynamics and Ehrenfest runs in TiDES: spectra, restarts, known bugs, PACE. |
