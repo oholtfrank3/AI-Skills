@@ -5,7 +5,7 @@ description: Everyday electronic-structure calculations a newcomer usually needs
 
 # Everyday calculations (standard practice)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain, give one next step, and ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
 
 This skill is general textbook practice, not group lessons: the group's own experience is in the specialist skills. Check keyword names against the manual of the installed version (`troubleshooting`), and run the cheap version of any calculation first.
 
@@ -39,6 +39,8 @@ This skill is general textbook practice, not group lessons: the group's own expe
 - For spin states, transition metals or bond breaking, check for multireference character (spin contamination ⟨S²⟩, T1 diagnostic) before trusting single-reference results, and ask someone who has done those systems.
 
 ## 5. Q-Chem and PySCF quick reference
+
+For details see the `pyscf` and `psi4` skills. Psi4 is the easiest route to SAPT and to automatic counterpoise / CBS (`nbody`, `cbs`).
 
 - **Q-Chem:** `JOBTYPE opt`, `freq` or `sp`; `METHOD wB97X-D`; `BASIS def2-TZVP`. For counterpoise, put the fragments in `$molecule` separated by `--` and use `JOBTYPE bsse`. For SAPT, use `JOBTYPE xsapt`.
 - **PySCF:** `dft.RKS(mol).set(xc='wb97x-d')` (dispersion through the `dftd3`/`dftd4` interfaces). Geometry optimization uses `pyscf.geomopt` with geomeTRIC or PyBerny. For counterpoise, build the monomer `Mole` with ghost atoms (`ghost-` prefix or `X-` atoms).

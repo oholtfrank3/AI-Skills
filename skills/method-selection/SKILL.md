@@ -61,7 +61,7 @@ Use the user's own words where you can, list any assumptions you made (geometry,
 
 | Question | First choice | Cheaper / screening | Higher-level check | Skill |
 |---|---|---|---|---|
-| Structures, frequencies, binding/interaction, reaction or conformer energies (ground state) | dispersion-corrected hybrid DFT, triple-ζ | smaller basis, GFN2-xTB for screening | CCSD(T)/CBS, SAPT for the breakdown | `basics` |
+| Structures, frequencies, binding/interaction, reaction or conformer energies (ground state) | dispersion-corrected hybrid DFT, triple-ζ | smaller basis, GFN2-xTB for screening | CCSD(T)/CBS, SAPT for the breakdown | `basics`, `psi4` (SAPT, CBS), `pyscf` |
 | Vertical excitation energies, UV-Vis, Rydberg states | EOM-EE-CCSD (Q-Chem) | TDDFT (range-separated functional), ADC(2) | a triples-corrected EOM method (check what Q-Chem / PySCF offers for EE) | `eom-cc` |
 | Ionization energies, hole states | EOM-IP-CCSD | ΔSCF, ADC(2) | EOM-IP-CCSD*, ΔCCSD(T), focal-point basis extrapolation | `eom-cc` |
 | Dications, two-hole final states | EOM-DIP-CCSD | ΔSCF / ΔMP2 | ΔCCSD(T) (for the lowest state per symmetry) | `eom-cc` |

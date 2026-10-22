@@ -38,6 +38,8 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 |---|---|
 | `method-selection` | Turning "I want to model X in system Y" into a calculation plan: method, benchmarks, cost, known traps. Start here. |
 | `basics` | Routine calculations: geometry optimization, frequencies, choosing a functional and basis, interaction energies and counterpoise. |
+| `pyscf` | PySCF scripts: SCF/DFT convergence, spin and charge, CASSCF, geometry optimization, performance on PACE. |
+| `psi4` | Psi4: SAPT energy decomposition, counterpoise and n-body, CBS extrapolation, running on PACE. |
 | `eom-cc` | EOM-CCSD EE / IP / DIP and CAP-EOM in Q-Chem and PySCF. |
 | `sharc` | Surface hopping, Ehrenfest and CSDM dynamics in SHARC: settings, energy conservation, restarts, ensembles on PACE. |
 | `tides` | Real-time TDDFT, hole dynamics and Ehrenfest runs in TiDES: spectra, restarts, known bugs, PACE. |

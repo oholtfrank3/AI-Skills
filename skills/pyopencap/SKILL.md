@@ -5,7 +5,7 @@ description: Projected complex absorbing potential (CAP) calculations with OpenC
 
 # Projected CAP with pyopencap (Kretchmer group notes)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain, give one next step, and ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
 
 **What it does.** Run an ordinary (real) calculation for N states. pyopencap then builds the CAP matrix in that N-state space and diagonalizes H₀ − iηW over a range of η. This is cheap per η, but the answer is only as good as the N states you gave it.
 

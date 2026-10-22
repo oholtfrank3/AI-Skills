@@ -6,7 +6,7 @@ description: Recipes and pitfalls for EOM-CCSD excited, ionized and doubly ioniz
 
 # EOM-CC in practice (Kretchmer group notes)
 
-> **Talking to the user:** they may be new to this. When answering a question or a problem, keep the reply short and plain: say what is going on in a sentence or two, give the single most likely fix or next step, and ask before running or submitting anything. Offer more detail instead of dumping it. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
 
 Every rule below cost at least one failed multi-hour job. Read the relevant section before submitting.
 
