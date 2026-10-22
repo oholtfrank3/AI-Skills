@@ -52,6 +52,8 @@ Every rule below cost at least one failed multi-hour job. Read the relevant sect
 
 ## 6. Running on a cluster
 
+- **Check inputs with the plugin's checker before submitting:** `python3 <plugin>/scripts/check_qchem_input.py job.in` (the `scripts/` folder is two levels above this skill's folder). It catches incomplete mixed-basis lists, loose Davidson convergence for CAP, CAP with EOM-DIP, and missing projected-CAP settings.
+
 - **Q-Chem scratch collisions:** give every job its own scratch:
   ```bash
   export QCSCRATCH=/tmp/$USER/$SLURM_JOB_ID

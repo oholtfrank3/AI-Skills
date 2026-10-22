@@ -15,6 +15,8 @@ description: How to submit, size, diagnose and manage Slurm jobs on Georgia Tech
 - **No installs** (conda, pip, modules into shared dirs) without an OK.
 - **Login nodes are for editing and seconds-long checks only.** No multi-process pools, dynamics loops, or `nohup ... &` work there. Never start an AI agent on a login node.
 
+- **Run the checkers before proposing a job.** The plugin ships `scripts/check_sbatch.py` and `scripts/check_qchem_input.py` in its root folder, two levels above this skill's folder. Run `python3 <plugin>/scripts/check_sbatch.py job.sbatch` (and the Q-Chem checker on each input). Fix every ERROR, and mention any WARN to the user when you propose the job.
+
 ## 1. Accounts and QOS
 - `-A gts-jkretchmer3-chemx` or `-A gts-jkretchmer3`: use the account the PI chose for that campaign, and check it in every hand-written script.
 - `-q inferno`: paid, high priority, preempts embers.

@@ -16,6 +16,8 @@ To use a single skill without the plugin, copy its folder from `skills/` into `~
 
 ## Getting started
 
+New to Claude? Read [GETTING_STARTED.md](GETTING_STARTED.md) first: installing Claude Code, installing this plugin, and connecting to PACE safely.
+
 Type `/compchem:start` and describe what you want to model, or what went wrong, in your own words.
 
 | Command | What it does |
@@ -45,7 +47,11 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 | `scientific-plot-style` | Group figure style (matplotlib). |
 | `blender-molecular-rendering` | Publication renders of molecules and clusters in Blender. |
 
-Planned: input-checking scripts, a getting-started guide for new Claude users, and a basics skill (DFT, basis sets, geometry optimization).
+## Checker scripts
+
+`scripts/check_qchem_input.py` and `scripts/check_sbatch.py` catch mistakes that have already cost the group jobs: incomplete mixed-basis lists, loose Davidson convergence for CAP, scratch on shared storage, missing accounts, embers preemption and partition routing. Claude runs them before proposing a job, and you can run them yourself: `python3 scripts/check_sbatch.py job.sbatch`.
+
+Planned: a basics skill (DFT, basis sets, geometry optimization).
 
 ## Testing the plugin
 
