@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- `pyscf`: the first reply to an SCF problem gives one fix with a short snippet, then offers the rest (eval tone check went from 0/3 to 2/3).
+- Evals: the PySCF case has three separate graders (tone, physics, spin), so a failure shows which part missed.
+- `tests/`: smoke tests for the checker scripts and the Slurm safety hook. GitHub CI (`.github/workflows/check.yml`) runs them and `claude plugin validate` on every push.
+
 ## 0.2.0 (2026-10-22)
 
 First version for group use.

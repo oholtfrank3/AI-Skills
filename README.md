@@ -64,4 +64,4 @@ Planned: more codes the group uses (e.g. OpenMolcas/CASSCF), contributed by the 
 
 ## Testing the plugin
 
-`evals/` holds test questions with grading checklists. Run `claude plugin eval . --runs 3` from the repo root to compare answers with and without the plugin. Run it after editing a skill.
+`evals/` holds test questions with grading checklists. Run `claude plugin eval . --runs 3` from the repo root to compare answers with and without the plugin. Run it after editing a skill. `tests/` has quick checks for the scripts and the safety hook (`python3 -m unittest discover -s tests`); GitHub runs them, plus `claude plugin validate`, on every push.

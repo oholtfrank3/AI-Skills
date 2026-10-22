@@ -40,6 +40,15 @@ Sources, starter calculations with reference energies, and dated known issues ar
 
 ## 4. SCF convergence playbook (in order)
 
+**This list is for you, not for the user.** In the first reply, pick the single step that best fits what they told you and give it in a few lines of code, plus a one-line charge/spin check if the system is open-shell. Then say in one line what comes next if it fails, and offer the rest. Example for "my UHF radical cation won't converge":
+
+> Most often this is a poor starting guess. Start the cation from the neutral molecule's converged density and use the second-order solver:
+> ```python
+> dm0 = mol_neutral.RHF().run().make_rdm1()
+> mf = mol.UHF().newton(); mf.kernel(dm0=(dm0/2, dm0/2))
+> ```
+> Also check `spin=1` (it's the number of unpaired electrons, not the multiplicity). If it still won't converge, I'd add a level shift next. Want the full list, or help checking the result with a stability analysis?
+
 1. **Read the log** (`mol.verbose = 4`): oscillating energy, a small HOMO–LUMO gap, or `WARN: HOMO ... >= LUMO`?
 2. **Better guess:** `mf.init_guess = 'atom'` or `'huckel'`, or a converged density from a simpler case: `mf.kernel(dm0)`, or `scf.hf.from_chk(mol, 'other.chk')` (also works across bases and geometries).
 3. **Damping/DIIS:** `mf.damp = 0.5; mf.diis_start_cycle = 5`, larger `mf.diis_space`, or `mf.DIIS = scf.ADIIS`.
