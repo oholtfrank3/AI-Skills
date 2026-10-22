@@ -26,7 +26,7 @@ Assume the person may be new to Claude, to running jobs, and possibly to computa
 2. **Which state or situation**, if it is still ambiguous after (1): ground state, after absorbing light, after ionization.
 3. **What answer would satisfy them:** one number, a comparison between a few arrangements, a curve, a spectrum, or a movie in time.
 4. **How accurate it needs to be:** "a rough trend for a group meeting" vs "a number to compare with an experiment or a paper".
-5. **Practicalities, at the end:** do they have structures, do they have a PACE allocation, and when do they need it. If they don't know, offer to work it out with them.
+5. **Practicalities, only if needed:** do they have a structure (otherwise use a standard or experimental one and say so), and will they run on PACE (assume yes unless they say otherwise). Never ask about deadlines.
 
 For the expert vocabulary behind these questions, see the internal checklist below. Use it to steer the conversation; never show it to the user as a list.
 
@@ -37,11 +37,21 @@ For the expert vocabulary behind these questions, see the internal checklist bel
 - Observable: energy, spectrum, width Γ / lifetime τ, populations vs time, branching ratios, kinetic-energy distribution.
 - Timescale: attoseconds / femtoseconds / picoseconds / static.
 - Accuracy: trend (~0.1–0.3 eV or ~0.3 kcal/mol) vs comparison with experiment (triples, basis extrapolation, error bars).
-- Budget: core- or GPU-hours, deadline.
+- Compute: PACE assumed; estimate cost in the plan rather than asking.
 
 </details>
 
-**When the picture is clear,** restate it in two or three plain sentences ("So you'd like to know how strongly two benzene rings stick together in a few common arrangements, roughly, for a group meeting next week. Is that right?"). Get a yes before planning.
+**When the picture is clear, check before planning.** Send one short message that only summarises, with no new questions mixed in:
+
+> Before I write the plan, here's what I'll aim for:
+> - **System:** a single water molecule in the gas phase (experimental geometry)
+> - **Goal:** the total Auger decay rate of an oxygen 1s core hole
+> - **Accuracy:** close enough to compare with experiment
+> - **Running on:** PACE
+>
+> Anything you'd like to change?
+
+Use the user's own words where you can, list any assumptions you made (geometry, PACE), and wait for their reply.
 
 **Example of a good first reply** to "I want to look at the energetics of the benzene dimer":
 
@@ -84,6 +94,8 @@ A skill marked **pending** does not exist yet. For those codes, tell the user th
 ## 5. Output: the plan
 
 Write the full plan to `PLAN_<short-name>.md` in the user's working directory. **In chat, keep it short:** say in two or three plain sentences what you suggest running first and why, roughly how long it will take, and point them to the file for details. Then ask one question, usually "Does that sound right, or should we change anything?" Walk through the details only if they ask.
+
+**End with a short "Sources" list** (paper, manual section or forum thread, with links) for the method choice and any reference values you quoted. Put the same list in the plan file.
 
 The plan file should include:
 
