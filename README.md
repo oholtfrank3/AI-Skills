@@ -23,6 +23,7 @@ Type `/compchem:start` and describe what you want to model, or what went wrong, 
 | Command | What it does |
 |---|---|
 | `/compchem:start` | The front door: Claude asks what you want to model and guides you to a plan. |
+| `/compchem:log-calc` | Record a calculation (planned, running, finished, failed) in the project's `CALCULATIONS.md` log. |
 | `/compchem:log-fix` | After a problem is solved, save the fix to the group's shared backlog (a GitHub issue). |
 | `/compchem:merge-fixes` | For maintainers: fold the reported fixes into the skills. |
 
@@ -51,6 +52,8 @@ Solved a problem? Run `/compchem:log-fix` in the session where you fixed it, or 
 | `blender-molecular-rendering` | Publication renders of molecules and clusters in Blender. |
 
 ## Checker scripts
+
+`scripts/check_qchem_output.py` checks that a Q-Chem job really finished (the "Thank you very much" line plus a clean `.err`) and that the requested EOM roots are all there, flagging satellites and unconverged roots. `scripts/check_sharc_lis.py` checks SHARC energy drift against the kinetic energy and flags jumps.
 
 `scripts/check_qchem_input.py` and `scripts/check_sbatch.py` catch mistakes that have already cost the group jobs: incomplete mixed-basis lists, loose Davidson convergence for CAP, scratch on shared storage, missing accounts, embers preemption and partition routing. Claude runs them before proposing a job, and you can run them yourself: `python3 scripts/check_sbatch.py job.sbatch`.
 

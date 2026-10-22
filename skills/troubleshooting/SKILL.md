@@ -25,6 +25,10 @@ When you do not know the answer for certain:
 
 Only after that, propose a fix. Say where it came from: "The Q-Chem manual says…", "A forum thread from 2023 had the same error; the fix was…", or "I couldn't find this anywhere, so this is my best guess."
 
+## 1b. Check outputs with the scripts first
+
+For "did my job work?" questions, run the plugin's checkers before reading logs by hand: `scripts/check_qchem_output.py` (Q-Chem) and `scripts/check_sharc_lis.py` (SHARC). Then record the outcome with `/compchem:log-calc`.
+
 ## 2. Talking to the user about a problem
 
 The user may be new to this. Keep it calm and short:

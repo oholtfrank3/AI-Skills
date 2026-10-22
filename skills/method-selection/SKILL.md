@@ -107,7 +107,7 @@ The plan file should include:
 - **Fallback** if a benchmark fails.
 - **Who should review it** (any pending-skill code; anything needing a lot of allocation).
 
-Do not write inputs or submit anything until the user approves the plan. Submission always follows `pace-slurm` §0: propose the job, then wait for an explicit OK.
+Do not write inputs or submit anything until the user approves the plan. Once they approve, offer to record the planned calculations with `/compchem:log-calc`, so the project log starts on day one. Submission always follows `pace-slurm` §0: propose the job, then wait for an explicit OK.
 
 ## 6. When to stop and bring in a person
 

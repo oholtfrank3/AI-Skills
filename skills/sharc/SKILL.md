@@ -45,6 +45,7 @@ Check each keyword against the manual of the SHARC version you run.
 
 ## 4. Energy conservation (the largest time sink)
 
+- **Check every trajectory with** `python3 <plugin>/scripts/check_sharc_lis.py output.lis` (in the plugin's `scripts/` folder). It reports drift as a percentage of the mean kinetic energy and flags single-step jumps; use `--absorbing` for absorbing-edge runs.
 - **Measure drift against the energy scales that matter:** the kinetic energy of the moving atoms, the range of the potential, the coupling and kT. Never compare it with the absolute total energy, which has an arbitrary zero. Production target: ≲ 1 % of the kinetic energy per run. The production DIM runs reached 0.1–0.5 meV over 2 ps.
 - **Stock SHARC `scp` with overlap coupling gets the coherence force wrong in dense bands.** It scales the force by NACdt/(v·d), with NACdt taken from overlaps, and in a dense band NACdt ≠ v·d. On single steps the mean-field force was 9–61 % off the exact force, even though small-system populations looked fine. Drift at 60 fs on one stress case:
 

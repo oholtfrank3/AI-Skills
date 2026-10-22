@@ -52,7 +52,7 @@ Every rule below cost at least one failed multi-hour job. Read the relevant sect
 
 ## 6. Running on a cluster
 
-- **Check inputs with the plugin's checker before submitting:** `python3 <plugin>/scripts/check_qchem_input.py job.in` (the `scripts/` folder is two levels above this skill's folder). It catches incomplete mixed-basis lists, loose Davidson convergence for CAP, CAP with EOM-DIP, and missing projected-CAP settings.
+- **Check inputs with the plugin's checker before submitting:** `python3 <plugin>/scripts/check_qchem_input.py job.in` (the `scripts/` folder is two levels above this skill's folder). After the job, run `scripts/check_qchem_output.py job.out`. It checks that the job really finished (the "Thank you very much" line plus a clean `.err`; never trust `sacct` COMPLETED), that every requested root is there, and flags satellites and unconverged roots. The input checker catches incomplete mixed-basis lists, loose Davidson convergence for CAP, CAP with EOM-DIP, and missing projected-CAP settings.
 
 - **Q-Chem scratch collisions:** give every job its own scratch:
   ```bash
