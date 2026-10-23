@@ -39,9 +39,9 @@ Then type `/compchem:start`. Claude should greet you and ask what you'd like to 
 
 ## 4. Connecting to PACE
 
-**Never start Claude on a PACE login node** (`login-phoenix-*`). It has killed people's whole login session, and login nodes are not for heavy work. There are two safe set-ups.
+**Never start Claude on a PACE login node** (`login-phoenix-*`). It has killed people's whole login session, and login nodes are not for heavy work. Run Claude on your own computer and let it send commands to PACE over ssh.
 
-### Option A (recommended to start): Claude on your computer, commands sent to PACE over ssh
+### Set-up: Claude on your computer, commands sent to PACE over ssh
 
 Claude runs on your laptop and sends each PACE command over one shared ssh connection. You do the Duo login once a day.
 
@@ -54,20 +54,6 @@ Claude runs on your laptop and sends each PACE command over one shared ssh conne
 3. Rerun step 1 when Claude says the connection is gone (after ~24 h).
 
 Claude will only run light commands on the login node (editing, `squeue`, `sbatch`). Calculations always go through Slurm.
-
-### Option B (for long-running agents): Claude inside a Slurm job on a compute node
-
-This is how the group's long-running agents work. Set it up with Owen the first time.
-
-1. Submit a long, small job that just holds a compute node (example shape: 4 cores, 32 GB, up to 7 days; use the account and QOS your project uses):
-   ```bash
-   sbatch -J claude_agents -A <account> -q inferno -c 4 --mem=32G -t 7-00:00:00 --wrap="sleep infinity"
-   ```
-2. On the login node, start `tmux` (it keeps things alive if your laptop disconnects). Inside it, open a shell on the job's node:
-   ```bash
-   srun --jobid=<jobid> --overlap -n1 -c4 --mem=0 --pty bash
-   ```
-3. Run `claude` there. Slurm commands work from inside the job.
 
 ## 5. Using it
 

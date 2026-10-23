@@ -18,6 +18,8 @@ See [CHANGELOG.md](CHANGELOG.md) for what's new.
 
 ## Getting started
 
+To see what the plugin adds, read [docs/comparison-cap-near.md](docs/comparison-cap-near.md): the same CAP question answered with and without it.
+
 New to Claude? Read [GETTING_STARTED.md](GETTING_STARTED.md) first: installing Claude Code, installing this plugin, and connecting to PACE safely.
 
 Type `/compchem:start` and describe what you want to model, or what went wrong, in your own words.
