@@ -6,7 +6,7 @@ description: Running TiDES, the Kretchmer group's real-time electronic structure
 
 # TiDES in practice (Kretchmer group notes)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. End with one line saying where the advice comes from (group notes, manual section or forum link). Ask before running or submitting anything. See `troubleshooting` §2.
 
 TiDES is a Python layer on PySCF: build a `gto.Mole`, converge a PySCF SCF, wrap it in `rt_scf.RT_SCF(mf, timestep, max_time)` (or `rt_ehrenfest.RT_Ehrenfest`), switch on observables and fields, then call `kernel()`. Code, README and examples: <https://github.com/jskretchmer/TIDES>. Paper: Rohan, Suarez, Clothier & Kretchmer, J. Chem. Phys. 164, 234117 (2026).
 

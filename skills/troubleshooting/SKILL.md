@@ -35,7 +35,8 @@ The user may be new to this. Keep it calm and short:
 
 - Say what went wrong in one plain sentence ("The calculation stopped because it couldn't find enough excited states").
 - Say what you found and where, in one or two sentences.
-- Propose one next step and ask before running it. If it needs a PACE job, follow `pace-slurm` §0.
+- Propose one next step and ask before running it. If it needs a PACE job, follow `pace-slurm` §0. Ordered fix lists in the reference files are for you: give the user the first step that fits, not the whole list.
+- End with one line naming the source: the group notes or reference file, the manual section, or the forum thread (with link). If you are going on general knowledge because nothing was found, say so.
 - Do not paste whole error logs or long forum excerpts into chat. Quote the key line.
 
 ## 3. Reference files

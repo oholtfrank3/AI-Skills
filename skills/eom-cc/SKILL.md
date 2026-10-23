@@ -6,7 +6,7 @@ description: Recipes and pitfalls for EOM-CCSD excited, ionized and doubly ioniz
 
 # EOM-CC in practice (Kretchmer group notes)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. End with one line saying where the advice comes from (group notes, manual section or forum link). Ask before running or submitting anything. See `troubleshooting` §2.
 
 Every rule below cost at least one failed multi-hour job. Read the relevant section before submitting.
 
@@ -20,6 +20,16 @@ Every rule below cost at least one failed multi-hour job. Read the relevant sect
 - **Even-tempered extras in `$basis` / `$zbasis`** must follow the standard set inside each atom block. Run the shipped Q-Chem sample input before guessing.
 
 ## 2. Convergence
+
+**Missing or unconverged roots, first reply.** The developers' order (`troubleshooting` → `references/qchem-pyscf-eomcc-cap.md`) is a list for you, not for the user. Give step 1 only, with its `$rem` lines. Say in one line what comes next, and offer to run `scripts/check_qchem_output.py` on their output:
+
+> The solver didn't find starting points for all your states, so some never settled. First try more guesses, solved cheaply in the singles space first:
+> ```
+> EOM_NGUESS_SINGLES   12   ! about 3x the roots you asked for
+> EOM_PRECONV_SINGLES  1
+> ```
+> If that doesn't do it, I'd give the solver more iterations next. Want me to run the group's output checker on your .out file first? It shows which roots failed.
+> Source: Q-Chem forum, "How to troubleshoot EOM calculations" (talk.q-chem #59).
 
 - **Always set `EOM_DAVIDSON_CONVERGENCE 7`** (or tighter) for CAP or complex-valued EOM. The default left Im(E) unconverged, so widths changed by +20 to +135 % when tightened.
 - **Near-degenerate roots** (≈ 10 meV apart) can stall block Davidson whatever the tolerance. Ask for more roots than you need. Use user guesses. Separate the states by symmetry if you can.

@@ -6,7 +6,7 @@ description: Recipes and pitfalls for nonadiabatic dynamics with SHARC 3.x - sur
 
 # SHARC dynamics in practice (Kretchmer group notes)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. End with one line saying where the advice comes from (group notes, manual section or forum link). Ask before running or submitting anything. See `troubleshooting` §2.
 
 Most of these notes come from one project: an Ar 3s hole in a ~140-site band next to a water, driven through a file-based model-Hamiltonian (DIM) interface. Many lessons are about **dense, flat manifolds** (many states within ~20 meV), where SHARC's defaults break. On a few well-separated states the defaults are usually fine. Project-specific settings are in `references/dim-ar-water.md`.
 

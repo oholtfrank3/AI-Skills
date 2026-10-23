@@ -5,7 +5,7 @@ description: Setting up, converging and running CP2K (Quickstep GPW DFT) - input
 
 # CP2K in practice (documented practice)
 
-> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. Ask before running or submitting anything. See `troubleshooting` §2.
+> **Talking to the user:** they may be new to this. Keep replies short and plain. For a problem, give only the most likely fix first (with its code or keywords), say in one line what you'd try next if it doesn't work, and offer the rest instead of listing every option. End with one line saying where the advice comes from (group notes, manual section or forum link). Ask before running or submitting anything. See `troubleshooting` §2.
 
 **This is general, documented practice, not group experience.** No CP2K notes were found in the group's records, so everything here comes from the CP2K manual, official howtos/exercises and the cp2k-user mailing list. Sources, reference numbers and ~20 known issues are in the `troubleshooting` skill, `references/cp2k.md`. Check that file before guessing at a fix. For choosing a functional or basis in general, see `basics` / `method-selection`.
 
