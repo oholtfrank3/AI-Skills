@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-22
 
-**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and run a starter calculation before you trust a production run. The everyday rules are in `skills/pyscf/SKILL.md`. EOM-CC in PySCF is covered in `qchem-pyscf-eomcc-cap.md` and `skills/eom-cc/SKILL.md`, and is not repeated here.
+**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and run a starter calculation before you trust a production run. The everyday rules are in `skills/pyscf/SKILL.md`. EOM-CC in PySCF is covered in `qchem-pyscf-eomcc-cap.md` and `skills/eom-cc/SKILL.md`, and is not repeated here. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 **Versions:** the latest tagged release is **v2.14.0** (`pyscf/__init__.py` on master, 2026-10-22). Check yours with `python -c "import pyscf; print(pyscf.__version__)"`. Defaults and APIs change between releases, so always quote the version.
 

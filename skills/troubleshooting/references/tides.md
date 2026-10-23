@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-20
 
-**How to use this file:** find the symptom in "Known issues" or "Group lessons", check the cause against your output, apply the fix, and confirm it with the starter calculations before you trust a production run.
+**How to use this file:** find the symptom in "Known issues" or "Group lessons", check the cause against your output, apply the fix, and confirm it with the starter calculations before you trust a production run. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 ---
 

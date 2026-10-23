@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-21
 
-**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and reproduce a starter calculation before you trust any production width.
+**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and reproduce a starter calculation before you trust any production width. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 ---
 

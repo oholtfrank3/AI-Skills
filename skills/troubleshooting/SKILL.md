@@ -38,6 +38,14 @@ The user may be new to this. Keep it calm and short:
 - Propose one next step and ask before running it. If it needs a PACE job, follow `pace-slurm` §0. Ordered fix lists in the reference files are for you: give the user the first step that fits, not the whole list.
 - End with one line naming the source: the group notes or reference file, the manual section, or the forum thread (with link). If you are going on general knowledge because nothing was found, say so.
 - Do not paste whole error logs or long forum excerpts into chat. Quote the key line.
+- If you have not seen their output yet, the first step is usually to look at it (run the checker from §1b), with one likely fix to try meanwhile.
+
+A good first reply is about this long:
+
+> **What happened:** <one plain sentence>.
+> **Try first:** <one fix, with its keywords or a few lines of code>.
+> If that doesn't work, I'd <next step> next. Can you send me the output file? I can check it with the group's checker before you rerun anything.
+> Source: <reference file, manual section or forum link>.
 
 ## 3. Reference files
 

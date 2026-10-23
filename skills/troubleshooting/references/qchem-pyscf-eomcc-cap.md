@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-21
 
-**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and check the setup on a starter calculation before you trust a production run. The group's own rules are in `skills/eom-cc/SKILL.md`. This file adds the sources behind them and does not repeat them.
+**How to use this file:** find your symptom under "Known issues and fixes", check the cause against your output, apply the fix, and check the setup on a starter calculation before you trust a production run. The group's own rules are in `skills/eom-cc/SKILL.md`. This file adds the sources behind them and does not repeat them. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 ---
 
@@ -103,7 +103,7 @@ Run one of these before a production job to check your input style and your mach
 
 ### Davidson convergence and missing roots
 
-- **Davidson misses a state (Q-Chem).** *Cause:* an iterative solver with a Koopmans guess. *Fix:* the developer-recommended order is (1) more guess vectors (`EOM_NGUESS_SINGLES`) with the same number of roots, (2) `EOM_PRECONV_SINGLES 1`, (3) tighter `EOM_DAVIDSON_CONVERGENCE`, (4) more roots (most expensive). [talk.q-chem #59, A. Krylov, 2020-07-03](https://talk.q-chem.com/t/how-to-troubleshoot-eom-calculations/59)
+- **Davidson misses a state (Q-Chem).** *Cause:* an iterative solver with a Koopmans guess. *Fix:* the developer-recommended order is (1) more guess vectors (`EOM_NGUESS_SINGLES`) with the same number of roots, (2) `EOM_PRECONV_SINGLES 1`, (3) tighter `EOM_DAVIDSON_CONVERGENCE`, (4) more roots (most expensive). Tell the user step 1 (with 2 if they want one rerun), not all four. [talk.q-chem #59, A. Krylov, 2020-07-03](https://talk.q-chem.com/t/how-to-troubleshoot-eom-calculations/59)
 - **Roots with absurd energies, sudden low roots, "complex roots" warnings.** *Cause:* loss of spin or permutational symmetry from numerical noise. Treat the whole run as suspect. *Fix:* raise `EOM_DAVIDSON_MAXVECTORS`, ask for fewer roots or loosen the threshold, start from more guesses or preconverged singles. For CVS jobs, use `CVS_EOM_SHIFT`. (Same thread, #59.)
 - **Benzene S1 missing in C1 (lowest root 6.38 instead of 4.86 eV).** *Cause:* without symmetry, the guess set did not include the S1 character. *Fix:* more guesses or preconverged singles; in the end the user needed 20 roots. Keep symmetry on when you can. [talk.q-chem #809, 2022-10-14](https://talk.q-chem.com/t/no-s1-state-for-benzene-when-eom-ccsd-is-used-without-symmetry/809)
 - **Projected-CAP roots hit the maximum Davidson iterations at moderate-to-large η (pyrrole, Box and Voronoi CAP).** *Fix:* `EOM_PRECONV_SINGLES` plus a large `EOM_NGUESS_SINGLES`. [talk.q-chem #72, 2020-07-07](https://talk.q-chem.com/t/resonances-with-projected-cap/72)

@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-22
 
-**How to use this file:** find your symptom in "Known issues and fixes", check the cause against your output file, apply the fix, and run a starter calculation on the same machine before trusting production. This is documented practice from the manual, howtos and mailing list, not group experience. The short version lives in `skills/cp2k/SKILL.md`.
+**How to use this file:** find your symptom in "Known issues and fixes", check the cause against your output file, apply the fix, and run a starter calculation on the same machine before trusting production. This is documented practice from the manual, howtos and mailing list, not group experience. The short version lives in `skills/cp2k/SKILL.md`. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 ---
 

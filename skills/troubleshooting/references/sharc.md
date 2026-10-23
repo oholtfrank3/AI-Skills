@@ -2,7 +2,7 @@
 
 Last researched: 2026-10-21
 
-**How to use this file:** find your symptom in "Known issues and fixes", check the cause against your `output.log`/`QM.err`, apply the fix, and rerun a starter calculation before trusting production. Group-specific lessons live in `skills/sharc/SKILL.md`; this file adds the official docs, source checks and public issues.
+**How to use this file:** find your symptom in "Known issues and fixes", check the cause against your `output.log`/`QM.err`, apply the fix, and rerun a starter calculation before trusting production. Group-specific lessons live in `skills/sharc/SKILL.md`; this file adds the official docs, source checks and public issues. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
 ---
 

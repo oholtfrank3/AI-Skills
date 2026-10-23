@@ -5,7 +5,8 @@
 - All skills: end advice with one line saying where it comes from (group notes, manual or forum link).
 - `troubleshooting` §2 and `eom-cc` §2: ordered fix lists are for Claude; the user gets the first step that fits (with an example for missing EOM roots).
 - `psi4`: SAPT answers explain each term in plain words and suggest checking against published values.
-- Evals: the unknown-error case has separate sources/physics/tone graders.
+- Evals: the unknown-error case has separate sources/physics/tone graders. Its tone grader was loosened to allow brief extra checks after the main fix (answers were judged good by hand).
+- `troubleshooting`: a template for a short first reply; every reference file says multi-step fix orders are for Claude.
 - `pyscf`: the first reply to an SCF problem gives one fix with a short snippet, then offers the rest (eval tone check went from 0/3 to 2/3).
 - Evals: the PySCF case has three separate graders (tone, physics, spin), so a failure shows which part missed.
 - `tests/`: smoke tests for the checker scripts and the Slurm safety hook. GitHub CI (`.github/workflows/check.yml`) runs them and `claude plugin validate` on every push.
