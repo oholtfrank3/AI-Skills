@@ -60,6 +60,17 @@ class QchemOutput(unittest.TestCase):
         self.assertIn("2 EOM roots printed, 3 requested", out)
         self.assertIn("satellites", out)
 
+    def test_cap_roots_are_counted(self):
+        text = ("IP_STATES [1]\nCAP_TYPE 1\n"
+                "CS/CAP-EOMIP-CCSD transition 1/A\n"
+                " Total energy = (-255.96610995 , -0.00004641) a.u.  Excitation energy =  (48.4075 , 0.0026) eV.\n"
+                " Thank you very much for using Q-Chem.\n")
+        with tempfile.TemporaryDirectory() as tmp:
+            code, out = run("scripts/check_qchem_output.py", write(tmp, "cap.out", text))
+        self.assertEqual(code, 0)
+        self.assertIn("1 EOM roots printed, 1 requested", out)
+        self.assertIn("48.40", out)
+
 
 class SharcLis(unittest.TestCase):
     def lis(self, etots):

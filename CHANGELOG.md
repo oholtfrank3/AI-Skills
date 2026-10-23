@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- `examples/`: tested PySCF scripts (water IPs by EOM-IP-CCSD and IP-ADC(2)/(3); Ne₂ 2s holes) with expected values.
+- `check_qchem_output.py`: counts CAP-EOM roots (`CS/CAP-EOMIP-CCSD transition`, complex energies); it reported 0 roots before.
+- `docs/comparison-cap-near.md`: the same CAP question with and without the plugin.
 - All skills: end advice with one line saying where it comes from (group notes, manual or forum link).
 - `troubleshooting` §2 and `eom-cc` §2: ordered fix lists are for Claude; the user gets the first step that fits (with an example for missing EOM roots).
 - `psi4`: SAPT answers explain each term in plain words and suggest checking against published values.

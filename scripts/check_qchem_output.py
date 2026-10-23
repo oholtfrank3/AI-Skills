@@ -13,8 +13,8 @@ import os
 import re
 import sys
 
-ROOT = re.compile(r"^\s*(EOM[\w-]*)\s+transition\s+(\d+)/(\S+)")
-EXC = re.compile(r"Excitation energy\s*=\s*(-?[\d.]+)\s*eV")
+ROOT = re.compile(r"^\s*((?:CS/CAP-)?EOM[\w-]*)\s+transition\s+(\d+)/(\S+)")  # CAP jobs print CS/CAP-EOMIP-CCSD
+EXC = re.compile(r"Excitation energy\s*=\s*\(?\s*(-?[\d.]+)")  # complex jobs print (Re , Im) eV
 R1 = re.compile(r"R1\^2\s*=\s*([\d.]+)")
 RES = re.compile(r"Res\^2\s*=\s*([\d.eE+-]+)")
 FAIL = re.compile(r"(not converged|did not converge|failed to converge|fatal error|"
