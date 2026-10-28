@@ -1,6 +1,6 @@
 # TiDES and real-time TDDFT: troubleshooting reference
 
-Last researched: 2026-10-20
+Last researched: 2026-10-23 (GPU wrapper and group bug list added from the group's TiDES checkout and ICD session notes)
 
 **How to use this file:** find the symptom in "Known issues" or "Group lessons", check the cause against your output, apply the fix, and confirm it with the starter calculations before you trust a production run. When you answer, give the user the one fix that best fits (with its keywords or code) and offer the rest; multi-step fix orders below are for you (`troubleshooting` §2).
 
@@ -55,7 +55,15 @@ Last researched: 2026-10-20
 - Cl2 Ehrenfest conserves total energy to about 0.1 meV with 6-31G and 0.01 meV with 6-31G*.
 - The authors name a systematic Ehrenfest error, missing moving-basis (Pulay-type) terms, that a smaller dt does not remove.
 
-**GPU.** Neither the README nor the readable parts of the paper mention GPU support (unverified). The group ran TiDES jobs on the PACE `gpu-v100` partition (see Group lessons), but the notes do not say whether TiDES itself used the GPU.
+**GPU.** The README and the readable parts of the paper do not mention GPUs, but the group's TiDES checkout has a GPU wrapper: `wrap_gpu_mf` in `src/tides/utils/rt_gpu.py`. The group's notes say it was added in commit `336f340` (June 2026, with no example); the latest commit touching the file in the checkout is the restructure `f7e0419`. The checkout's remote is a private fork, so whether the public jskretchmer/TIDES repo has it is unverified. What the file's docstring and code say:
+- It takes a **converged** gpu4pyscf SCF object (raises `RuntimeError` if not converged, `TypeError` if it is not a gpu4pyscf object, `ImportError` without cupy/gpu4pyscf) and returns a CPU PySCF object whose `get_fock` and `energy_tot` run on the GPU. That object is "a drop-in replacement" for the `scf` argument of `RT_SCF` / `RT_Ehrenfest`.
+- Docstring example: `mf_gpu = gpu_dft.uks.UKS(mol).density_fit()`, `mf_gpu.xc = 'CAMB3LYP'`, `mf_gpu.kernel()`, `mf = wrap_gpu_mf(mf_gpu)`, then `rt_scf.RT_SCF(mf, timestep, max_time, prop='ep_pc', ...)`.
+- Install: `pip install cupy-cuda12x` and `pip install gpu4pyscf-cuda12x` (cuda11x variants for CUDA 11).
+- Complex densities are split into real and imaginary parts; the XC term is evaluated only on the real part (code comment: "standard approximation").
+- Only UKS/UHF GPU workflows are tested (code comment); RKS is included but not tested.
+- The CPU copy is density-fitted (`.density_fit()`) whatever the GPU object used.
+
+Group measurement (water dimer, CAM-B3LYP/aug-cc-pVDZ, `ep_pc`, dt 0.5 au, 200 steps): one V100 462 ms/step; CPU 1/2/4/8/12/16 threads 4359/2872/2240/2030/1910/2100 ms/step, so 12 threads was the best CPU setting (16 was slower) and the GPU was ~4.1× faster. Slurm lines used: `--partition=gpu-v100`, `--gres=gpu:V100:1`, `module load cuda/12.6.1`. Ehrenfest and D3 need extra steps (K26).
 
 ---
 
@@ -91,11 +99,11 @@ Paths are relative to `/Users/owenhf/Documents/pace_snapshot_2026-10-04/`. All o
 
 **G1. Four TiDES bugs, found and fixed.** The bugs were density scrambling, CAP normalization, double printing of output, and stale checkpoints (`CALCULATIONS_LIST_with_values.md:1022`).
 - If you see oddly jumping populations, a CAP that removes the wrong amount of charge, duplicated output lines, or a restart that resumes from the wrong state, first check that your TiDES copy includes these fixes.
-- The notes do not record commit hashes or which version introduced the fixes (unverified).
+- Details of each bug are in K19–K25 below. Not every fix has a recorded commit hash (unverified).
 
 **G2. First-force-after-restart bug in Ehrenfest.** After a restart from checkpoint, the first nuclear force was wrong. This caused a spurious water dissociation in earlier runs. It was fixed in all 10 of the group's driver scripts before the runs resumed on Oct 7 (`CALCULATIONS_LIST_with_values.md:1003`; `PROJECT_STATUS_2026-10-07.md:102`).
 - **Lesson:** after any Ehrenfest restart, compare the geometry, velocities, energy and forces of the first post-restart steps with the last pre-restart steps. A jump means the restart is broken, not that the physics is real.
-- The chkfile stores only the time and MO coefficients (README), so the nuclear state must be restored by the driver.
+- The README says the chkfile stores only the time and MO coefficients, but in the group's checkout Ehrenfest chkfiles also hold `Position`, `Velocity` and `Force` sections, which `RT_Ehrenfest.__init__` restores. Mechanism and fix: K22; related velocity bug: K23.
 
 **G3. Walltime and segmented restarts.** The Ehrenfest jobs ran on V100 GPUs in 48 h segments and hit TIMEOUT repeatedly (`writing_materials/agent_messages/msg1_to_tides.txt:8`; `PROJECT_STATUS_2026-10-07.md:103-105`). The working procedure (`NEXT_SESSION_HANDOFF.md:194`) is:
 1. Confirm that the `.out` tail shows TIMEOUT.
@@ -129,6 +137,13 @@ At about 200–280 fs per 48 h segment (`CALCULATIONS_LIST_with_values.md:1005-1
 **G9. Group precedent for CAP RT-TDDFT.** Wang, …, Orlando & Kretchmer, JPCL **15**, 7806 (2024) modelled ICD with non-Hermitian RT-TDDFT ([PMC11299181](https://pmc.ncbi.nlm.nih.gov/articles/PMC11299181/); local summary `writing_materials/LIT_decay_in_hole_dynamics_2026-10-07.md:13,30`).
 - **Setup:** NWChem, LC-PBE*, aug-cc-pVDZ on the trigger and d-aug-cc-pVDZ on the target; the CAP values are in the paper's SI.
 - **Caveats the authors report:** charge-loss features depend on the CAP parameters; the final charge saturated near 1.6 rather than 2; the method failed for Ne–H2O and Ne–Ar (vdW-bound systems).
+
+**G10. Controls, sampling and timing (group lessons, 2026).**
+- **Isolated-atom control:** an isolated Ar⁺ 3s hole cannot refill in adiabatic TDDFT, because the spherical 3s⁻¹ determinant does not couple different l. The control showed only ~1 % breathing, so it cannot separate real refilling from a mean-field artifact.
+- **Output stride:** a print stride of `nstep//200` sampled a 10 ps run every 50 fs and a 1 ps run every 5 fs, and the longer run reported a smaller maximum. The conclusion reversed with a fixed 2 fs stride.
+- **Initial density:** a script built a custom initial density, checked its electron count, but never assigned it to `rt_mf.den_ao`, so the run started from the ground state. Assign it and print its trace and a population after setup.
+- **Temperature:** one Ehrenfest set sampled velocities at 13 K for a 30 K experiment. Check the sampled temperature against the experiment before interpreting nuclear motion.
+- **Timing:** quote ms/step together with dt; fs per wall-hour = (3600 / seconds per step) × dt(au) / 41.34.
 
 ---
 
@@ -227,15 +242,68 @@ At about 200–280 fs per 48 h segment (`CALCULATIONS_LIST_with_values.md:1005-1
 - **Cause:** PySCF is linked to the reference BLAS, or the thread environment variables were set too late.
 - **Fix:** use conda scipy or MKL, and export `MKL_NUM_THREADS`/`OPENBLAS_NUM_THREADS` (= `SLURM_CPUS_PER_TASK`) with `OMP_NUM_THREADS=1` in the job script. [TiDES README](https://github.com/jskretchmer/TIDES); repo `examples/Multithreading_SLURM`
 
+### TiDES code issues found by the group (2026)
+
+These come from the group's Ar/water hole-dynamics runs on the group's checkout (branch `devel_hackathon`). Line numbers and function names are from that checkout and may differ in yours. Whether each fix is in the public repo is unverified; check `git log` and the source.
+
+**K19. A "fresh" run starts from an old state, or restart crashes with `UnboundLocalError: 'b1'`.**
+- **Cause:** `RT_SCF.__init__` defaults `chkfile` to `'tides.chk'` and, if that file (or the named `Restart.chkfile`) exists in the run folder, restarts from it automatically. A stale chkfile from another run silently replaces your initial state. In `restart_from_chkfile` (`src/tides/utils/rt_utils.py`) the `ep_pc` branch had two bugs: `mo_beta` was read to the end of the file (past the `Position`/`Velocity`/`Force` sections that Ehrenfest writes) instead of stopping at `Position`, and `b1` was never assigned on that path.
+- **Fix:** delete `Restart.chkfile`, `tides.chk` and `chkfiles/` before any fresh run. On restart the evolved MO coefficients come back but occupations reset to neutral, so re-apply `rt_utils.excite(...)` (this part is intended). If an Ehrenfest `ep_pc` restart crashes while parsing `mo_beta`, bound the read at the `Position (AU):` line and guard the `b1` use.
+- **Source:** group ICD session notes, Sep 2026.
+
+**K20. Density scrambles as soon as the nuclei move (Ehrenfest).**
+- **Symptom:** `mo_occ` turns fractional and the energy diverges at the first nuclear step. Not seen in the shipped 2-atom NaCl example.
+- **Cause:** `RT_Ehrenfest.update_mol` sets a new (symmetric) `orth` but never updates `orth_inv`, which `RT_SCF.__init__` cached from a different (canonical) orthogonalization. The two rotations no longer invert each other.
+- **Fix:** after every `update_mol`, set `rt.orth_inv = numpy.linalg.inv(rt.orth)`, and fix the stale one left by `__init__`. With this, energy was conserved to ~1e-10 Ha (CPU) and ~4e-5 Ha (GPU) on a 4-Ar + H2O test.
+- **Source:** group session notes. A bare CPU 6-31G test ruled out the integrator, GPU wrapper, basis and dt.
+
+**K21. `ImportError` from scripts that used to work.**
+- **Cause:** commit `f7e0419` ("massive restructure") moved modules into `src/tides/{methods,potentials,nuclear,propagators,observables,utils,decoherence}/`. `tides/__init__.py` re-exports only the top-level classes (`RT_SCF`, `RT_Ehrenfest`, `RT_CAS_RAS`, `MOCAP`, `ElectricField`, `static_bfield`).
+- **Fix:** use the new paths: `from tides.methods import rt_scf, rt_ehrenfest, rt_cas_ras`; `from tides.utils import rt_utils, basis_utils`; `from tides.utils.rt_gpu import wrap_gpu_mf`; `from tides.potentials.rt_cap import MOCAP`; `from tides.potentials.rt_vapp import ElectricField`; `from tides.nuclear import ehrenfest_force, rt_nuclei`; `from tides.propagators import rt_integrators`. Analysis modules moved to `tides.analysis.*` (e.g. `tides.analysis.parse_rt`, `tides.analysis.rt_spec`).
+- **Two API changes:** custom observables `[compute_fn, print_fn]` now each take one argument (`rt_obj`; read `rt_obj.den_ao` inside). And `RT_Ehrenfest.__init__` calls `ehrenfest_force.get_force(self)` and `update_mol()` once itself, so a patch of `get_force` (frozen atoms, D3) must be installed **before** constructing `RT_Ehrenfest`.
+- **Source:** group session notes, checked against the checkout's source.
+
+**K22. Huge force on the first step after an Ehrenfest restart.**
+- **Symptom:** at the same simulated time, a hydrogen force was 0.0069 Ha/Bohr before the restart and ~2.9 Ha/Bohr after it; a water then dissociated.
+- **Cause:** `RT_Ehrenfest.__init__` builds the density with the still-neutral occupations, then computes forces (the source has a reminder comment to update forces after `excite()`). On a fresh start this is harmless; on a restart the orbitals are the evolved, hole-bearing ones, so the neutral-occupation density is unphysical. The driver's later `excite()` fixes the density but not `nuc.force`, and the first velocity update uses the stale force.
+- **Fix:** right after `rt_utils.excite(rt_mf, ...)` and before `rt_mf.kernel()`, add `rt_mf.nuc.force = ehrenfest_force.get_force(rt_mf)`.
+- **Source:** group session notes, Sep 30 – Oct 2 2026 (applied to all 10 group drivers).
+
+**K23. Nuclear kinetic energy drops back to its starting value at every restart.**
+- **Cause:** `RT_Ehrenfest.__init__` restores positions, velocities and forces from `Restart.chkfile`, but the drivers then called `nuc.sample_vel(...)` unconditionally, overwriting the restored velocities with a new thermal sample.
+- **Fix:** `_RESTARTING = os.path.exists('Restart.chkfile')`, and sample only `if not _RESTARTING:`. After the next restart, check that the kinetic energy does not jump.
+- **Source:** group session notes, Oct 9 2026.
+
+**K24. Workup scripts crash or misalign; observables have exactly twice as many rows as `time`.**
+- **Cause:** from commit `336f340` until a fix on 2026-09-02, `get_observables` (`src/tides/observables/rt_observables.py`) called each print function inside its loop, and `update_output` printed again. The paper's figures predate this.
+- **Fix:** delete the `function[1](rt_obj)` call from the loop. After any run check `parse_output(f)['time'].shape[0] == parse_output(f)[key].shape[0]`.
+- **Source:** group session notes, Sep 2 2026.
+
+**K25. CAP + Ehrenfest: charge drains and forces may go wrong.**
+- **Cause:** `MOCAP` adds an anti-Hermitian term to the Fock matrix and nothing renormalizes the density afterwards (the only trace computed is recorded as the charge observable). `ehrenfest_force.py` builds forces from that shrinking, complex density with no correction. A propagator fix for the non-Hermitian Fock exists (commit `f409900`), but not a force fix. A CAP-off control also collapsed, so the CAP may not be the only problem.
+- **Also:** check how many virtuals lie above `emin`. In a 17-atom Ar/water cluster, `emin = 0.0477 Ha` damped 99 % of 216 virtuals; `emin = 0.15 Ha` excluded only ~13 more and charge loss at 6.65 fs barely changed (0.042 vs 0.046 e).
+- **Fix:** none in the code yet. Track Tr(P·S) and key distances over time, and compare with CAP-off and frozen-nuclei runs before trusting CAP-Ehrenfest geometries.
+- **Source:** group session notes, Sep 23–30 2026.
+
+**K26. GPU wrapper with Ehrenfest or D3 dispersion.**
+- **Ehrenfest:** `wrap_gpu_mf` keeps the GPU SCF object built at t = 0, so call `mf_gpu.reset(current_mol)` in the same `update_mol` hook as the K20 fix.
+- **D3:** setting `mf.disp = 'd3bj'` does nothing here. TiDES's `ehrenfest_force.py` uses its own complex-density gradient, not PySCF's `Gradients.kernel()`, and `wrap_gpu_mf` replaces `energy_tot`. The group added D3 by hand with `pyscf.dispersion.dftd3.DFTD3Dispersion` at the current geometry, as a force term in `ehrenfest_force.get_force` (patched before constructing `RT_Ehrenfest`, K21) and as an energy term on `mf.energy_tot`. Test the D3 call on an Ar dimer first.
+- **Source:** group session notes, Sep 24 2026; `rt_gpu.py` in the group checkout.
+
+**K27. Mirror-image atoms behave differently in a symmetric cluster.**
+- **Cause:** PySCF's DFT quadrature grid is not symmetrized (the log prints `symmetrized grids: False`). Small grid asymmetries grow over hundreds of fs of nonlinear propagation: two mirror-equivalent atoms differed by more than 2× (−0.063 vs −0.147 e) with frozen nuclei.
+- **Fix:** trust only large, consistent trends; don't compare one atom with its mirror partner. Whether a finer grid removes it is untested.
+- **Source:** group session notes, Sep 2026.
+
 ---
 
 ## Open questions / could not verify
 
-- **GPU:** whether TiDES has native GPU support (for example, through gpu4pyscf or CuPy), and what exactly ran on the V100 nodes in the group's jobs. Neither the README nor the readable parts of the paper mention GPUs.
-- **Fixes in the public repo:** whether the four bug fixes in G1 and the restart-force fix in G2 are merged into the public `main` branch, or live only in the group's local drivers. Check `git log` before relying on them.
+- **GPU:** whether `wrap_gpu_mf` (`src/tides/utils/rt_gpu.py`) is in the public repo, and whether RKS/RHF GPU runs work (the code says only UKS/UHF are tested).
+- **Fixes in the public repo:** whether the fixes in G1, G2 and K19–K24 are merged into the public `main` branch, or live only in the group's checkout and drivers. Check `git log` before relying on them.
 - **Field parameters:** pulse types other than `delta` (Gaussian, CW, Hann); their argument names are not documented in the README.
 - **Damping argument:** the units and meaning of the `abs_spec` damping argument (assumed τ in au, as in the paper).
 - **Missing paper details:** the ethylene time step and part of the paper's middle section (about 25 kB was not read). The XAS molecule is named inconsistently (CO vs CO2) in the paper text.
-- **Ehrenfest restarts:** whether the chkfile stores nuclear positions and velocities. The README says only the time and MO coefficients, so the drivers must restore them.
+- **Ehrenfest restarts:** the README says the chkfile stores only the time and MO coefficients; the group's checkout also writes and restores positions, velocities and forces (K19, K23). Which version introduced this is unverified.
 - **Missing source types:** no Matter Modeling SE or PySCF forum threads on RT-TDDFT turned up in the searches. K9, K14 and K15 rely on search summaries rather than full reads.
 - **Timing:** the time per run for the benzene benchmark on PACE CPU nodes has not been measured.

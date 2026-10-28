@@ -47,7 +47,7 @@ Last researched: 2026-10-21
 **Q-Chem side.**
 - **To export densities for pyopencap:** `GUI = 2` in `$rem`.
 - **Native projected CAP (Q-Chem 5.4 or later):** `COMPLEX_CCMAN = 1` plus a `$complex_ccman` block with `PROJ_CAP 3`, `CAP_TYPE` (0 spherical, 1 cuboid, 2 smooth Voronoi), `CAP_X/Y/Z` (in units of 1e-3 bohr), `CAP_ETA` (in units of 1e-5 au) and `PROJ_PROP 1` for first-order corrections.
-- **EOM types:** Q-Chem's manual says projected CAP is **currently EE/EA only**, not IP. See the [Q-Chem 6.3 manual](https://manual.q-chem.com/6.3/sub_cc_cs_cap.html).
+- **EOM types:** the manual's "EE/EA only" applies to `PROJ_CAP` 1 and 2 (CAP in the virtual-virtual block). `PROJ_CAP 3` "is available for all EOM-CC models for which transition properties between EOM target states are available", and with `GUI = 2` it exports all state and transition one-particle density matrices (6.3 manual p. 582–583, [online](https://manual.q-chem.com/6.3/sub_cc_cs_cap.html)). The group ran `PROJ_CAP 3` + `GUI 2` with EOM-IP-CCSD and no `CC_TRANS_PROP`; for 30 states it wrote 60 state-density and 1740 transition-density blocks to the `.fchk`.
 
 **Interfaces.**
 - **PySCF:** officially FCI, ADC (via adcc) and TDA-TDDFT. EOM-EA-CCSD exists only as a repository example. Other methods are "use at your own risk".
@@ -57,7 +57,7 @@ Last researched: 2026-10-21
 
 **First-order correction.** The corrected energy is U = E − η dE/dη (Riss and Meyer). It removes the leading CAP perturbation and usually shifts η_opt larger and the width smaller. Report which one you used and show both.
 
-**Choosing η.** Pick the stationary point of the trajectory, where the logarithmic velocity |η dE/dη| is at a minimum. `start_idx` skips the trivially small-η region. When the trajectory has more than one minimum, a small real `cap_lambda` (CR-CAP) can remove the unphysical one.
+**Choosing η.** Pick the stationary point of the trajectory, where the logarithmic velocity |η dE/dη| is at a minimum. `start_idx` skips the trivially small-η region. When the trajectory has more than one minimum, a real `cap_lambda` (CR-CAP) can remove the unphysical one. For very narrow widths (sub-meV) the velocity minimum is unreliable; the group used the flattest Γ plateau instead (see `qchem-pyscf-eomcc-cap.md`, "CAP setup and analysis").
 
 ---
 
@@ -94,7 +94,7 @@ Last researched: 2026-10-21
 
 **Results swing with CAP onset or with η.** Cause: optimizing η at a fixed onset depends strongly on the onset chosen, and the logarithmic velocity can have up to four minima in CAP-EOM-EA-CCSD. Fix: scan the onset as well as η (`compute_ao_cap` with a new dict is cheap in projected CAP). Report the global minimum, or fix η and optimize the onset (Gyamfi and Jagau's criterion). Same source.
 
-**Two stabilization points on one trajectory.** Cause: an unphysical stationary point. Fix: rerun with a small `cap_lambda` (CR-CAP), positive or negative, and raise it until one point disappears. Do not push λ too far. Sources: the Thodika and Matsika paper above (Fig. 5) and the OpenCAP theory page.
+**Two stabilization points on one trajectory.** Cause: an unphysical stationary point. Fix: rerun with a real `cap_lambda` (CR-CAP) and raise it until one point disappears. Sources: the Thodika and Matsika paper above (Fig. 5) and the OpenCAP theory page. **Group experience (direct CAP-EOM-IP in Q-Chem, `CAP_RE_ETA`):** use positive λ only. A negative λ (−0.5 a.u.) made an attractive outer potential that bound an electron in the absorber (IP 3758 eV). A very small λ only re-measures ξ, since dE/dλ = i dE/dη; the useful values were 0.5–2 a.u., which removed a bound-state artefact.
 
 **Large uncorrected/corrected gap; corrected Γ much smaller.** Cause: the CAP perturbation is a large part of Im(E). At large onset, Im(E) is almost entirely ⟨iηW⟩, which means the "width" is CAP absorption, not decay. Fix: compare `energies_ev(corrected=True)` with the uncorrected values. If the deperturbed width is close to zero, the stationary point is not a resonance. Source: Gyamfi and Jagau, Sec. 4.2.
 
@@ -112,7 +112,7 @@ Last researched: 2026-10-21
 
 **Grid allocation errors, or numerical integration dies.** Fix: lower `thresh` to drop very diffuse GTOs, or reduce `angular_points` or `radial_precision`. Box CAPs default to analytic integrals, so this mainly affects Voronoi and custom CAPs. Sources: [keywords page](https://gayverjropencap.readthedocs.io/en/latest/keywords.html) and [issue #32](https://github.com/gayverjr/opencap/issues/32) (2021).
 
-**Q-Chem PROJ_CAP=3 rejected for EOM-IP.** Cause: Q-Chem implements projected CAP for EE/EA only. Fix: use full CAP-EOM-IP-CCSD in Q-Chem. Alternatively, export IP densities with `GUI=2` and project them in pyopencap; whether that route works is unverified. Source: Q-Chem 6.3 manual, §7.10.9.
+**Is PROJ_CAP 3 allowed for EOM-IP?** Yes. The "EE/EA only" sentence in the manual is about `PROJ_CAP` 1 and 2; option 3 needs only state-to-state transition properties (6.3 manual p. 583). The group's EOM-IP run with `COMPLEX_CCMAN 1`, `PROJ_CAP 3` and `GUI 2` (no `CC_TRANS_PROP`) completed and pyopencap read it. Keep a `$complex_ccman` block: `COMPLEX_CCMAN 1` without it stops the job in 2 s ("Could not find $complex_ccman section").
 
 **Unit slips.** Q-Chem `CAP_X 2760` means 2.76 bohr and `CAP_ETA 10` means 1e-4 au. pyopencap takes bohr and au directly (`"2.76"`, and η lists such as `linspace(0, 5000, 101)*1e-5`). Mixing the two conventions gives onsets or η values that are off by a factor of 1000. Source: Q-Chem manual and the OpenCAP tutorial.
 
@@ -122,7 +122,7 @@ Last researched: 2026-10-21
 
 ## When projected CAP struggles
 
-**Group case (Ar–water ICD/ETMD).** Projected-CAP widths came out 10²–10⁴ times larger than direct CAP-EOM-CCSD widths and did not converge with the number of states. That pattern fits the mechanisms below. No source I found studies projected CAP for ICD/ETMD directly, so treat the mechanism links as **interpretation (unverified)**.
+**Group case (Ar–water ICD/ETMD).** Projected-CAP widths came out 10²–10⁴ times larger than direct CAP-EOM-CCSD widths and did not converge with the number of states up to N = 30 (one donor jumped 1422 → 1275 → 65 meV; another doubled from N = 25 to 30). That pattern fits the mechanisms below. No source I found studies projected CAP for ICD/ETMD directly, so treat the mechanism links as **interpretation (unverified)**.
 
 **1. The subspace may not contain the decay channel.** Projected CAP can only mix the states you computed. An ICD/ETMD resonance is an inner-valence hole that decays into two-hole-one-particle (2h1p) continua. The lowest N EOM roots are often other bound or Rydberg-like states, not a discretized version of that continuum, so the width depends on whichever pseudo-continuum states happen to be included and keeps jumping as N grows. For N2⁻, 9 states were enough; for HCOOH⁻, even 6 were not (Gyamfi and Jagau). For higher-lying resonances, the parameters can vary strongly with subspace size (Thodika and Matsika, introduction). **Check:** whether the included roots have the right symmetry and 2h1p character, and whether Γ converges when you go to 20–40 states. Use `include_states` to test which roots carry the width.
 
@@ -130,7 +130,7 @@ Last researched: 2026-10-21
 
 **3. Only total widths.** CAP gives only total widths, not ICD vs ETMD partial widths. A projection-operator or Wigner–Weisskopf method is needed for partials (2016 J. Chem. Phys. helium-trimer paper, from search snippets; unverified).
 
-**4. Q-Chem has no projected CAP for IP.** ICD starts from an ionized state, but Q-Chem's PROJ_CAP is EE/EA only.
+**4. Root targeting.** ICD starts from an inner-valence ionized state that sits above a dense band of outer-valence holes and 2h1p satellites. Without `EOM_SHIFT`, 30 roots never reached the Ar 3s holes. (Q-Chem's `PROJ_CAP 3` itself does work for IP; see Known issues.)
 
 **Literature numbers for interatomic decay.** From [arXiv:2305.10186](https://arxiv.org/abs/2305.10186) (2023, complex-basis-function EOM-IP-CCSD for ICD):
 - **Ne2 at 3.2 Å:** CAP-EOM-CCSD 7.2 meV, CAP-ADC(2) 7.1 meV, CAP-CI 10.3 meV; experiment 3.3–6.6 meV.
@@ -142,7 +142,7 @@ Last researched: 2026-10-21
 2. **Scan the onset as well as η**; compare a box CAP with a Voronoi CAP (Voronoi is better for clusters, per Gayvert and Bravaya 2022); and try CR-CAP λ to remove false stationary points.
 3. **Use full (non-projected) CAP-EOM-CCSD** (Q-Chem `COMPLEX_CCMAN`, CS_HF and CS_CCSD true), which the group already found consistent. Optimize the onset as well, and report corrected widths.
 4. **Cross-check with a method that does not use a CAP onset:** complex-basis-function EOM-IP-CCSD (Q-Chem `COMPLEX_EXPONENTS`) or Fano-ADC with Stieltjes imaging.
-5. **Sanity-check the physics:** an ICD width should follow roughly R⁻⁶ with distance. If the computed widths do not, they are artifacts.
+5. **Sanity-check against a channel-closed null:** run the same setup on a state whose decay channel is closed. Simple ICD widths fall off roughly as R⁻⁶, but mediated ICD (hole delocalization or superexchange through a neighbour) and virtual-photon routes legitimately deviate, so a non-R⁻⁶ trend alone does not mean an artifact.
 
 ---
 
@@ -150,7 +150,7 @@ Last researched: 2026-10-21
 
 - Final journal reference for the OpenCAP software paper (J. Phys. Chem. A, 2023): seen only as "submitted" on a CV.
 - Journal citations for Gyamfi and Jagau (arXiv:2312.15798) and for the authors and journal of arXiv:2305.10186; I read the arXiv texts only.
-- Whether pyopencap gives sensible W from Q-Chem EOM-IP-CCSD densities (`GUI=2`). Neither the docs nor the issues cover IP.
+- Whether pyopencap gives sensible W from Q-Chem EOM-IP-CCSD densities (`GUI=2`). Neither the docs nor the issues cover IP. The group's pipeline ran end to end (overlap matrix verified) but gave widths 10²–10⁴ too large, so this is still open.
 - I found no published study of projected CAP specifically for ICD/ETMD or Ar–water systems. The mechanism analysis above is inference.
 - The full text of the Gayvert and Bravaya clusters paper (JPCA 126, 5070) returned 403. The Voronoi recommendation comes from abstract and search snippets.
 - `find_eta_opt` default arguments, and whether `check_overlap_mat` or `check_overlap_matrix` is the current name (the docs use both).

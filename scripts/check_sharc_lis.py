@@ -10,6 +10,8 @@ headers or hop events ("# Surface Hop: new state= ... old state= ...").
 Drift is judged against the mean kinetic energy, never against the absolute
 total energy (arbitrary zero). Use --absorbing for runs with an absorbing edge,
 where Etot is not conserved by construction.
+Epot/Etot print as '****' when the absolute energy overflows the Fortran field
+(e.g. ab initio Ar clusters); those rows are counted and reported, not judged.
 Exit code 1 if any ERROR was found.
 """
 import argparse
@@ -18,7 +20,7 @@ import sys
 
 
 def read(path):
-    rows, hops, frustrated = [], 0, 0
+    rows, hops, frustrated, overflow = [], 0, 0, 0
     for line in open(path, errors="replace"):
         s = line.strip()
         if not s:
@@ -31,19 +33,28 @@ def read(path):
                 frustrated += 1
             continue
         p = s.split()
+        if len(p) >= 6 and any("*" in t for t in p[4:8]):  # overflowed fields may merge with neighbours
+            overflow += 1
+            continue
         if len(p) >= 7:
             try:
                 rows.append((int(p[0]), float(p[1]), int(p[2]), float(p[4]), float(p[5]), float(p[6])))
             except ValueError:
                 pass
-    return rows, hops, frustrated
+    return rows, hops, frustrated, overflow
 
 
 def check(path, tol_pct, jump_mev, absorbing):
     found = []
     add = lambda lvl, msg: found.append((lvl, msg))
-    rows, hops, frus = read(path)
+    rows, hops, frus, overflow = read(path)
+    if overflow:
+        add("WARN", f"{overflow} step(s) print '****' for Epot/Etot: the absolute energy overflows output.lis's "
+                    "field (not a blow-up). Energy conservation cannot be judged from these rows; rebuild Etot from "
+                    "output.dat (Ekin + active-state energy) or data_extractor.x's output_data/energy.out (sharc §4)")
     if len(rows) < 2:
+        if overflow:
+            return found
         add("ERROR", "fewer than 2 time steps found: the run died early or this is not an output.lis")
         return found
     t0, t1 = rows[0][1], rows[-1][1]

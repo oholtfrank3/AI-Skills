@@ -67,12 +67,17 @@ The community add-on `ahujasid/blender-mcp` (GitHub `addon.py` + `uvx blender-mc
 Molecules:
 - Atoms: UV spheres (48 × 24), `shade_smooth`, one Principled BSDF per element (roughness ~0.5, specular ~0.2). Bonds: cylinders aligned with `direction.to_track_quat('Z','Y')`.
 - Keep element sizes consistent across a figure set. Do not shrink/enlarge special atoms (hole, ion) unless asked; mark them with colour or a label instead.
+- **Schematics are the exception, when the user asks:** sizes may be exaggerated for readability (e.g. enlarge the water, or draw Ar and O the same size). Keep the chosen scale the same across the schematic set, and keep it separate from the true-scale figures. If small markers (e.g. trajectory "cloud" dots) were sized relative to an atom, rescale them too.
 - Lighting: white world at strength ~0.3 plus one sun (energy ~1.7, angle ~12°). Camera: orthographic, placed from a centre point, elevation angle and `ortho_scale`; keep the same camera across versions when asked.
 - Density clouds (e.g. hole densities): Gaussian sum on a grid -> Principled Volume with a smooth MapRange cutoff, `volume_step_rate` ~0.25, LOW emission (bright clouds look like they are glowing). Make the volume camera-ray-only (disable diffuse/glossy/transmission/scatter/shadow visibility) so it does not tint neighbouring atoms. Render clouds as separate layers and composite so foreground atoms stay opaque.
 
 Labels and annotation: never in Blender. Export each atom's pixel position with `bpy_extras.object_utils.world_to_camera_view` to a JSON next to the PNG, then draw all labels, arrows and legends in matplotlib on top of the render (vector text, consistent fonts; see the `scientific-plot-style` skill).
 
-## 3. Workflow rules
+## 3. VMD instead of Blender
+
+For quick structure images rendered on the cluster with VMD and Tachyon (headless, `vmd -dispdev text`), read `references/vmd.md` first: several commands fail silently there.
+
+## 4. Workflow rules
 - Render ONE image and get approval before batch-rendering the rest.
 - Save new versions (`_v2`, `_v3`, ...); never overwrite an approved render.
 - Matplotlib side needs a Python with numpy/matplotlib (Blender's bundled Python is separate).

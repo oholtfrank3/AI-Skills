@@ -1,6 +1,6 @@
 ---
 name: troubleshooting
-description: What to do when a calculation fails, crashes, does not converge, is missing roots or states, prints an unfamiliar error or keyword, gives results that look wrong, or you are unsure how a code (Q-Chem, PySCF, Psi4, CP2K, pyopencap/OpenCAP, SHARC, TiDES) handles something. Search the official docs, then the code's forum and issue tracker, then the literature, BEFORE guessing a fix or submitting a test job. Includes per-code reference files with documentation links, starter calculations and known issues collected from forums. Also use when someone asks for a simple test calculation to check their setup.
+description: What to do when a calculation fails, crashes, does not converge, is missing roots or states, prints an unfamiliar error or keyword, gives results that look wrong, or you are unsure how a code (Q-Chem, PySCF, Psi4, CP2K, OpenMolcas, pyopencap/OpenCAP, SHARC, TiDES) handles something. Search the official docs, then the code's forum and issue tracker, then the literature, BEFORE guessing a fix or submitting a test job. Includes per-code reference files with documentation links, starter calculations and known issues collected from forums. Also use when someone asks for a simple test calculation to check their setup.
 ---
 
 # Troubleshooting: search first, then fix (Kretchmer group notes)
@@ -19,6 +19,7 @@ When you do not know the answer for certain:
    - PySCF: github.com/pyscf/pyscf issues and discussions
    - OpenCAP: github.com/gayverjr/opencap issues
    - SHARC: github.com/sharc-md/sharc issues; sharc-md.org
+   - OpenMolcas: gitlab.com/Molcas/OpenMolcas issues; molcasforum.univie.ac.at (older threads on the molcas.org message board)
    - General: Matter Modeling Stack Exchange
 5. **The literature:** the method paper and any benchmark paper that ran the same kind of system.
 6. **Shipped samples and tests:** run the code's own example input closest to your case before changing your input. A sample that works narrows the problem to your input.
@@ -59,6 +60,7 @@ Each file has official documentation links with keyword summaries, a few **start
 | CP2K (periodic DFT, AIMD) | `references/cp2k.md` |
 | pyopencap / OpenCAP (projected CAP) | `references/pyopencap.md` |
 | SHARC | `references/sharc.md` |
+| OpenMolcas (RASSCF/SA-CASSCF, MCLR gradients, SLAPAF, MRCI) | `references/openmolcas.md` |
 | TiDES and real-time TDDFT | `references/tides.md` |
 
 **Starter calculations come first.** Before a new person's first real job, or on a new machine or code version, run the closest starter calculation and compare it to the reference value. It takes minutes and catches most setup problems.

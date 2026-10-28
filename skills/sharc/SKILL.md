@@ -14,7 +14,7 @@ Before setting anything up, check with `method-selection` that surface hopping i
 
 ## 1. Version, driver, binaries
 
-- **Group install:** SHARC 3.0.2 under `/storage/project/r-jkretchmer3-0/oholtfrank3/ICD/software/sharc`; environment from `sharc_dynamics/sharc_env.sh`.
+- **Group install:** SHARC 3.0.2 under `/storage/project/r-jkretchmer3-0/oholtfrank3/software/sharc` (built 2026-08-30; the SA-CASSCF and DIM runs both used it); environment from `ICD/sharc_dynamics/sharc_env.sh`. The build notes do not say whether the source was the 3.0.2 release or a later `main` checkout, which matters for §4's `grad_select` bug: check `git log` in the source tree if it is a clone.
 - **In SHARC 3.x, pysharc only does surface hopping.** It refuses `method scp` (Ehrenfest/CSDM). SHARC 4.1 (separate `sharc4` repo) does support SCP and CSDM in its `driver.py`, so recheck this if the group upgrades. For mean-field or CSDM use standalone `sharc.x` with a file-based `QM.in`/`QM.out` interface (template: `SHARC_Analytical.py`).
 - **Never patch the installed tree.** Build each patch in a copy of the source as a separately named binary and keep the `.patch` next to it. Record the md5 of the binary and the interface in every run directory.
 
@@ -57,7 +57,10 @@ Check each keyword against the manual of the SHARC version you run.
 
   The patch removes a two-line rescale in `qm.f90` (~line 1371); no keyword is equivalent (`coupling ddr` is a weaker fallback). `nacdr` on its own, with the stock binary, did **not** help. The best route is to compute the exact force in the interface (group binary `sharc_force.x`, `SHARC_EXACTFORCE=1`). It agreed with the patched result to ~1 meV and was 2.6–3.5× faster. **This only works when the interface can return the density-weighted exact force Σ Re(ρ_ij)⟨i|∇H|j⟩**, as a model Hamiltonian can. A typical ab initio overlap interface gives only state gradients. There, use the patched binary with derivative couplings (`nacdr`).
 - **A smaller time step hides the bug, it does not fix it.** "DT too coarse" was tested and refuted as the cause. Production used DT 0.25 fs (CSDM) and 1 fs (FSSH).
-- **Energy jump right after a hop with `grad_select`.** The group's FSSH and FSSH-EDC pilots wrote `grad_select`; the CSDM production runs did not. In SHARC 3.0.2 the gradient is zero on the step after a hop, which gives an energy jump (sharc-md/sharc issue #112). It was fixed on `main` in May 2024 but not in any 3.x release. Avoid `grad_select` with 3.0.2, or build from a patched `main`.
+- **`grad_select` can leave a zero gradient right after a hop.** In SHARC 3.0–3.0.2, when `grad_select` is on, the gradient fetched after a hop is not processed, so the next step has an energy jump (sharc-md/sharc issue #112). It was fixed on `main` (commit bc0c242, May 2024), not in any 3.x release. It only matters on steps with a real hop to a different state; `grad_all` is unaffected.
+  - **What the group ran:** the DIM FSSH/FSSH-EDC pilots and the SA-CASSCF/OpenMolcas production runs all used `grad_select` (SA-CASSCF: `eselect 0.2`, later `0.001`, i.e. one gradient per step); the DIM CSDM runs did not. The SA-CASSCF runs showed 8–16 meV energy jumps exactly one step after state switches (all 56 jumps > 1 meV in one ensemble). That matches #112's symptom but was never diagnosed; trivial crossings between far-apart sites are the other candidate.
+  - **What to do:** with a 3.0.2 release build, use `grad_all` for anything you will report, or rebuild from `main`. If cost forces `grad_select`, rerun a few trajectories with `grad_all` and compare the per-hop energy change.
+- **`output.lis` prints `****` in the Epot/Etot columns when the absolute energy is large** (e.g. −59372 eV for an Ar cluster with an ab initio interface). That is a Fortran field overflow, not a blow-up. Rebuild Etot from `output.dat` (or run `data_extractor.x` and read `output_data/energy.out`). `check_sharc_lis.py` warns when it sees this.
 - **`diagnostics.py` defaults are loose** (a 0.2 eV energy window). Set the thresholds to your own tolerance (§4) instead of trusting its pass/fail.
 - **A misspelled keyword is silently ignored.** Check the echo of the input in `output.log`.
 - **Keep `nsubsteps` at 25.** 5 or 10 saved no time and made drift worse.
@@ -76,6 +79,12 @@ Check each keyword against the manual of the SHARC version you run.
 - **Classical 30 K Maxwell–Boltzmann has no zero-point energy.** Wigner widened one contact distance 2.5× and the site-energy spread 4–5×.
 - **Check the initial electronic state.** Make sure SHARC does not re-pick the state by energy. When FSSH draws the active adiabat from |⟨k|initial⟩|², 9–12 % of draws landed on states mostly located elsewhere. Flag those trajectories and report them separately rather than dropping them.
 - If the ensemble's distribution differs from the target (e.g. orientations), **reweight** the observables and report both raw and reweighted values.
+- **Start a localized hole with `coeff external`, not `state N mch`.** An eigenstate is stationary, so a run started in one cannot show transfer (one ensemble's populations stayed frozen to 3 decimals for 300 fs). Write the hole as a superposition of eigenstates in a `coeff` file and set `state N` to the largest component. Check that projecting t = 0 returns the prepared hole.
+- **Flat modes:** exclude near-free rotations (e.g. water on a symmetric Ar patch) from harmonic Wigner sampling with `wigner.py -L 50` (cm⁻¹ cutoff).
+- **Geometry:** never optimize a vdW lattice with HF or MP2 (HF has no dispersion; an Ar–Ar distance built wrong gave 7.5× too small a coupling). Use the experimental fcc Ar distance, 3.756 Å, and print nearest-neighbour distances before launching.
+- **Free clusters expand under Wigner zero-point energy** when the vdW well is shallow (Ar–Ar 3.75 → 4.28 Å over 600 fs). Hop rates from such runs are lower bounds.
+- **Start a molecule at the method's own bond lengths.** Water at O–H 0.960 Å instead of the method's 0.9466 Å rang the O–H stretch and leaked 1–2 meV per step.
+- **Frozen atoms need three changes:** zero gradient in the interface, zero initial velocity in `veloc`, and `atommask external` so hops do not re-accelerate them. SHARC ignores `atommask` with `ekincorrect parallel_nac`/`parallel_diff` (and the p- variants) and with `decoherence_scheme afssh`.
 
 ## 7. I/O, restart and cost
 
@@ -83,6 +92,10 @@ Check each keyword against the manual of the SHARC version you run.
 - **Restart needs** `restart` plus one of two keywords. `restart_goto_new_qm_step` is for a graceful stop (tmax, a `STOP` file, killafter), which is what the USR1 → STOP route in §8 produces. After a crash or a hard time-limit kill, the manual says to use `restart_rerun_last_qm_step` instead. Call `sharc.x` directly, because `run_sharc_file.sh` runs `rm -rf restart*`. Expect ~1e-4 eV differences from an uninterrupted run. If the interface keeps history (overlaps), save at least K steps of it or restart errors grow ~40×.
 - **With many states, the cost is text I/O, not physics.** 85–90 % of the step went to writing and parsing `QM.out`. Thin the output with `output_dat_steps N`, `nowrite_overlap` and a lower `printlevel`. Trimming small couplings out of `QM.out` gave no speedup when the coupling matrix was dense.
 - Time steps over a long stretch (≥ 1 h) before projecting cost (`pace-slurm` §6).
+- **Killing `sharc.x` and starting it again restarts from t = 0** unless `input` has `restart` plus one of the two keywords above. Restart files on disk are not enough. Test the restart route on a cheap model before relying on it.
+- **What is re-read when:** `input` is read once at start; `QM/*.resources` and the template are re-read every QM step, so interface settings can be changed in a running trajectory.
+- **`ctrl%nsteps` is overwritten inside the time loop** (set to the current step), so patches must take the last step from `tmax`/`stepsize`.
+- **`output.log` is appended, not overwritten**, so it can still hold crash text from before a restart. Judge progress by the step count in `output.lis`.
 
 ## 8. Ensembles on PACE
 
@@ -97,11 +110,18 @@ Check each keyword against the manual of the SHARC version you run.
 - Compare methods or settings **paired by seed** (same initial conditions).
 - Recompute the kinetic energy from stored velocities and check that Σ|c|² = 1 when packing outputs.
 - Check units after every transfer or parser change. One set of energies was 27.2× too large because the Hamiltonian was already in eV.
+- **Count site hops, not raw "Surface Hop" lines.** With spin multiplets, each state appears once per Ms component, and the exactly degenerate copies switch constantly. Fold MCH indices onto sites with `((mch - 1) % nsite) + 1` and count changes (one ensemble: 44,677 raw events → 88 real hops). Report the full i → j census, not just a total.
+- **`output.dat` coefficients are in the diagonal (diag) basis.** Transform to MCH with the `U matrix` block (c_MCH = U c_diag) before projecting onto sites; reading diag as MCH silently gives plausible but wrong populations. Check that t = 0 returns the prepared hole.
 
 ## 10. Ab initio SHARC (SA-CASSCF / OpenMolcas): why it was retired here
 
-- It cost 35–40 min per step for 17 atoms, with recurring MCLR divergence (rc = 96) and 8–16 meV jumps at trivial crossings.
-- **Check orbital character at step 0.** Active spaces silently held the wrong orbitals (Ar 1s/3p, water lone pairs), giving step-0 state spreads of eV to keV. Choosing orbitals by energy ranking broke four set-ups. Assign by Mulliken ownership (`methods/tdcasci_ehrenfest/orbital_owner.py`).
+The details and settings are in `references/sa-casscf-openmolcas.md`; OpenMolcas errors are in `troubleshooting/references/openmolcas.md`.
+
+- **Decisive reason: finite clusters gave wrong site energies.** Clusters small enough to afford gave ~50 meV offsets between sites that should be equivalent, larger than the ~20 meV 3s coupling, so the hole stayed stuck. Edge atoms have fewer neighbours to polarize, and polarization is long-ranged, so an 18-Ar buffer did not fix it. The group moved to a model Hamiltonian (DIM) built from ab initio pieces.
+- **Cost:** 35–40 min per step for 17 atoms, and 8–16 meV jumps one step after state switches (§4).
+- **Check orbital character at step 0.** Active spaces silently held the wrong orbitals (Ar 1s/3p, water lone pairs), giving step-0 state spreads of eV to keV. Choosing by energy ranking broke four set-ups, and choosing by Mulliken ownership alone also failed: a core 1s orbital is 100 % on its atom, so it won and gave a 3.2 keV collapse. **Pick by ownership inside an energy window:** occupied, ε in the valence window of the orbital you want (Ar 3s: −2.2 to −0.9 Ha), > 50 % on one atom. Print ε and shell for every pick and stop if |ε| > 5 Ha or ε > 0.
+- **Launch gate:** compare the step-0 site-energy spread and the absolute state-averaged energy with a trusted single point (EOM-IP-CCSD at the same geometry and contact distance) before launching. A small spread alone does not prove the right hole.
+- **MCLR rc = 96 had a structural cause.** Final diagnosis: core or doubly occupied orbitals in the active space (occupation exactly 2.0). With a clean 3s active space MCLR converged and the analytic gradient matched finite differences to 0.1–0.9 %. Loosening thresholds or raising iterations never helped.
 - Check the geometry against the intended structure. A chain built at 4.600 Å instead of 3.756 Å gave a 2.7 meV coupling instead of ~20 meV.
 - cc-pVDZ captured only ~35 % of the Ar polarizability, so site energies were wrong before any dynamics ran.
 
@@ -110,6 +130,6 @@ Check each keyword against the manual of the SHARC version you run.
 - Tully models 1–3 benchmark.
 - Census of frustrated hops (no parser yet).
 - Residual +9–12 meV drift at DT 1 fs after patching.
-- Whether the `grad_select` bug caused part of the per-hop energy losses in the FSSH pilots. Cheap test: rerun one pilot without `grad_select`.
+- Whether the `grad_select` bug (#112) caused the per-hop energy losses in the DIM FSSH pilots or the 8–16 meV post-switch jumps in the SA-CASSCF runs, and whether the group build includes the fix. Cheap test: rerun one trajectory with `grad_all` from the same initial conditions.
 - Precedent for absorbing boundaries in SH/CSDM (`sharc_abs.x`; see the reference file).
 - Written justification that the force patch restores the published CSDM equations (`~/writeup_notes/csdm_patch_and_rim.md` on PACE).

@@ -13,6 +13,11 @@ Read the number from the output, log or file just before you report it. Do not r
 
 If a job failed, a step was skipped or something is not checked yet, say so plainly.
 
+- **No negatives from a broken look.** If a query errored, came back unexpectedly empty, or the output was truncated, say "could not check" and rerun it. Do not report "none found".
+- **Read the method and basis from the input file**, never from a directory or file name.
+- **"Running, no crashes" is not "working".** Before saying a run works, compare its first-step (step-0) or absolute energies with a trusted reference.
+  > Weeks of dynamics were reported as running fine; the step-0 site energies spread over 3.5 eV where the EOM-CC reference gave at most 0.5 eV.
+
 ## 2. Is every number labelled?
 Give the source of every value: model (e.g. DIM), ab initio level and basis (EOM-CCSD/d-aug-aQZ), experiment with a reference, **ESTIMATE**, or **PRELIMINARY** (pilot, small n, unconverged). Give units and the zero of energy (vertical/adiabatic, which asymptote). Never quote values the PI has retired.
 
@@ -38,6 +43,11 @@ Report the quantity (distance, energy, rate), not a verdict.
 ## 7. Does the evidence prove what I'm claiming?
 - A diagnostic that a known-negative case also passes proves nothing.
   > A flat CAP plateau and a small xi were taken as proof of a width. A channel-closed control state with zero true width passed both tests.
+- Before interpreting a new analysis, run it on a case with a known answer (a known null) and check it gets that answer. Do not tune or explain away noise until it matches a published value.
+- If your own analysis script says the code is wrong, check the script first, units especially.
+  > A gradient was reported as "confirmed unreliable". The diagnostic script had a bohr/Å conversion the wrong way round; the gradient was fine.
+- Look up a mechanism in the literature before explaining or arguing for it, and check it against the energy scales: kT at 20 K is about 1.7 meV and cannot close a 0.5 eV gap.
+- Report what is robust. If the absolute value depends on settings but a difference or ordering does not (e.g. open vs closed), lead with that.
 - Timing: do not quote per-step speed or projected runtime from 1–2 steps (warm-up), and include queue wait when saying when results land.
 - Convergence: name the test and give the size of the change ("2× region: −0.02 ± 0.02").
 
@@ -49,3 +59,8 @@ Cite a paper for every non-standard choice. No ad hoc fitted terms without prece
 - Full numbers and paths go in the calculation list; keep the message readable.
 - If an earlier message was wrong, correct it explicitly ("Earlier I said X; it is Y").
 - Drafts only: the researcher writes final write-ups and slides, and nothing is sent on their behalf.
+
+## 10. Working habits
+- **Do not reopen a result the user or PI has accepted** unless you have new evidence; say what the evidence is. Figures use the accepted numbers.
+- **Do not call a calculation infeasible from wall time alone.** Check the real limits (on PACE, `pace-slurm` §1) and whether it can checkpoint or be split.
+- **Ask before deleting anything**, scratch included. Say exactly what would be deleted (paths, size) and wait for a yes for that deletion.

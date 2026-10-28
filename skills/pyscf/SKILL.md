@@ -33,7 +33,7 @@ Sources, starter calculations with reference energies, and dated known issues ar
 - **Dispersion:** `pip install pyscf-dispersion`, then `mol.KS(xc='b3lyp-d3bj')` or `'wb97x-d4'`. Check that a dispersion energy is printed.
 - **Optimization:** `pip install geometric`; `from pyscf.geomopt.geometric_solver import optimize; mol_eq = optimize(mf)`.
 - **Frequencies:** at the optimized geometry, same level and grid: `h = mf.Hessian().kernel()`, then `pyscf.hessian.thermo.harmonic_analysis` and `thermo.thermo`.
-- **Correlation:** `mp.MP2(mf)`, `cc.CCSD(mf, frozen=n).run()`, `.ccsd_t()`. Freeze only true core.
+- **Correlation:** `mp.MP2(mf)`, `cc.CCSD(mf, frozen=n).run()`, `.ccsd_t()`. Freeze only true core. `frozen=n` freezes the n lowest orbitals **by energy**, and that order can change with charge: with an Ar⁺ hole the Ar 3s fell below the water O 2s, so neutral and cation froze different orbitals (~0.5 eV IP error). Count per molecule (here 5 per Ar + 1 per water, O 1s only) and check a single-hole IP against the monomer.
 - **Excited states:** `mf.TDA().run(nstates=5)` or `mf.TDDFT()`; `td.e` is in Hartree; `td.oscillator_strength()`, `td.analyze()`.
 - **Output:** `mf.dip_moment()`, `mf.mulliken_pop()`, `mf.analyze()`, `tools.molden.from_scf(mf, 'x.molden')`, `tools.cubegen.orbital(...)`.
 - **Extensions:** dispersion, properties (NMR, EPR, polarizabilities), pyscf-forge (newer methods), gpu4pyscf (`.to_gpu()`). If an import fails, the extension is not installed.
@@ -62,6 +62,8 @@ Sources, starter calculations with reference energies, and dated known issues ar
 - **Check ⟨S²⟩** (`mf.spin_square()`). For a triplet expect ~2.0; much larger means spin contamination. O2/cc-pVDZ UHF gives 2.033.
 - **Broken-symmetry singlets need a broken guess:** `mf.init_guess_breaksym = 'mix'` or edit the alpha/beta guess densities (`examples/scf/32-break_spin_symm.py`). Otherwise UHF stays RHF-like.
 - **ΔSCF finds the lowest state of each occupation.** To hold an excited hole or electron use MOM (`scf.addons.mom_occ`); for genuinely excited ion states use EOM (`eom-cc`).
+- **Don't use ΔSCF-MOM/DFT to decide whether a decay channel is open.** For dication (two-hole) channel energies on Ar slabs, ΔPBE-D3 MOM called every donor closed, contradicting the EOM-CCSD trend with cluster size (channels open). It had been calibrated against EOM-CCSD on small clusters and still failed at larger sizes, and some sites gave split holes or spin populations above 1. Use EOM-IP/DIP energetics (`eom-cc`).
+- **MOM in dynamics:** `mom_occ` keeps comparing against the orbitals you gave it at the start. For a trajectory, update the reference to the previous step's orbitals each step.
 - **Same input, different answer between runs** with several threads: multithreaded sums are not bit-reproducible and degenerate open shells break symmetry either way. Compare energies, run stability, keep the lowest stable state.
 - **ROHF vs UHF:** ROHF is spin-pure but often harder to converge; UHF is easier but can drift to another state. Check the spin density on each fragment.
 

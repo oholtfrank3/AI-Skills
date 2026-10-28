@@ -6,6 +6,7 @@ Exit code 1 if any ERROR was found. Reads #SBATCH lines and the script body;
 it does not contact Slurm. For partition routing, also run
 `sbatch --test-only ...` on PACE.
 """
+import os
 import re
 import sys
 
@@ -44,7 +45,8 @@ def opts(text):
         for tok in re.findall(r"(--?[\w-]+)(?:[ =]([^\s]+))?", line[7:]):
             key, v = tok
             o[{"-A": "--account", "-q": "--qos", "-c": "--cpus-per-task", "-t": "--time",
-               "-p": "--partition", "-N": "--nodes", "-n": "--ntasks", "-C": "--constraint"}.get(key, key)] = v
+               "-p": "--partition", "-N": "--nodes", "-n": "--ntasks", "-C": "--constraint",
+               "-o": "--output", "-e": "--error"}.get(key, key)] = v
     return o
 
 
@@ -88,6 +90,23 @@ def check(path):
         if "--tmp" not in o:
             add("WARN", "Q-Chem job without --tmp: large EOM/CAP jobs need TB of node-local disk "
                         "(--tmp=... --constraint=localNVMe); measure real use", "pace-slurm §3")
+        if any(int(n) > 16 for n in re.findall(r"\bqchem\b[^\n]*?\s-nt[ =]?(\d+)", body)):
+            add("WARN", "qchem -nt above 16: in the group's runs -nt 24 raised the 'double free' crash rate "
+                        "from 1.5 % to ~14 % for almost no CCSD speed-up; request the cores for routing "
+                        "but run qchem -nt 16", "pace-slurm §2")
+        out_file = os.path.basename(o.get("--output") or "")
+        if out_file:
+            for line in body.splitlines():
+                words = line.split()
+                if "qchem" in words and out_file in words[words.index("qchem") + 1:]:
+                    add("WARN", f"#SBATCH -o {out_file} is also Q-Chem's output file: Slurm's stdout "
+                                "overwrites it; use -o slurm-%j.out", "pace-slurm §3")
+                    break
+        if (re.search(r"\bqchem\b[^\n]*\s-save\b", body)
+                and re.search(r"\btrap\b[^\n]*\brm\s+-[a-zA-Z]*r", body)):
+            add("WARN", "qchem -save together with a trap that runs rm -rf on the scratch: the trap deleted "
+                        "the savedir on a wall-clock kill; drop the trap and copy the files you need back "
+                        "at the end", "eom-cc §6, pace-slurm §3")
     if re.search(r"--export[ =][^\n]*=[^\n,]*,", text):
         add("WARN", "--export value containing a comma: Slurm splits it at the comma", "sharc §8")
     if re.search(r"\bsbatch\b.*--dependency", body):

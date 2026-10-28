@@ -3,7 +3,8 @@
 
 Usage: python3 check_qchem_input.py job.in [job2.in ...]
 Exit code 1 if any ERROR was found, else 0. Each finding cites the skill
-section it comes from. Not a full parser: it reads $molecule, $rem and $basis.
+section it comes from. Not a full parser: it reads $molecule, $rem, $basis and
+$complex_ccman.
 """
 import re
 import sys
@@ -63,9 +64,13 @@ def check(path):
         add("ERROR", "no $molecule section found", "-")
 
     val = lambda k: rem.get(k, "").lower()
-    is_cap = any(k in rem for k in ("CAP_ETA", "CAP_TYPE", "CAP_X", "PROJ_CAP")) or val("COMPLEX_CCMAN") in ("true", "1")
-    eom_kinds = [k for k in ("EE_STATES", "IP_STATES", "EA_STATES", "DIP_STATES", "DEA_STATES", "SF_STATES",
-                             "EE_SINGLETS", "EE_TRIPLETS") if k in rem]
+    cc = rem_dict(sec.get("complex_ccman", []))  # CAP / projected-CAP parameters live here
+    ccval = lambda k: cc.get(k, "").lower()
+    complex_on = val("COMPLEX_CCMAN") in ("true", "1")
+    is_cap = complex_on or any(k in cc for k in ("CAP_ETA", "CAP_TYPE", "CAP_X", "PROJ_CAP"))
+    eom_kinds = [k for k in ("EE_STATES", "IP_STATES", "EA_STATES", "DIP_STATES", "DIP_SINGLETS", "DIP_TRIPLETS",
+                             "DEA_STATES", "SF_STATES", "EE_SINGLETS", "EE_TRIPLETS") if k in rem]
+    has_dip = any(k.startswith("DIP") for k in eom_kinds)
 
     # Mixed / general basis must list every atom, ghosts included.
     if val("BASIS") in ("mixed", "gen"):
@@ -86,20 +91,53 @@ def check(path):
         if conv is None or (conv.isdigit() and int(conv) < 7):
             add("ERROR", f"CAP/complex EOM with EOM_DAVIDSON_CONVERGENCE = {conv or 'default (5)'}; "
                          "use 7 or tighter (loose convergence changed widths by +20 to +135 %)", "eom-cc §2")
-        if "DIP_STATES" in rem:
+        if has_dip:
             add("WARN", "CAP with EOM-DIP: not available in Q-Chem 6.3.1 (forum #3172); check your version",
                 "eom-cc §5")
-    if val("PROJ_CAP") and val("GUI") != "2":
-        add("WARN", "projected CAP needs GUI = 2 so the .fchk with densities is written", "pyopencap §1")
-    if val("PROJ_CAP") and val("CC_TRANS_PROP") not in ("true", "1"):
-        add("WARN", "projected CAP needs CC_TRANS_PROP = TRUE for state-to-state densities", "pyopencap §1")
+
+    # Complex (CAP / CS / CBF) code: the $complex_ccman block is mandatory.
+    if complex_on and "complex_ccman" not in sec:
+        add("ERROR", "COMPLEX_CCMAN is on but there is no $complex_ccman block: Q-Chem stops in the parser "
+                     "within seconds (add the block with the CAP parameters, or PROJ_CAP 3 for a projected run)",
+            "eom-cc §5a")
+    if complex_on and any(k in rem for k in ("CC_FNO_THRESH", "CC_FNO_USEPOP")):
+        add("ERROR", "FNO with COMPLEX_CCMAN failed in the group's runs (\"Key 'hf/c_o1b' is not known\"); "
+                     "drop CC_FNO_THRESH / CC_FNO_USEPOP", "eom-cc §5a")
+
+    # A box/sphere CAP is fixed in the input frame; Q-Chem's reorientation moves the molecule.
+    if any(k in cc for k in ("CAP_X", "CAP_Y", "CAP_Z")) and ccval("CAP_TYPE") != "2":
+        keeps_frame = (val("SYM_IGNORE") in ("true", "1") or val("SYMMETRY") in ("false", "0")
+                       or val("POINT_GROUP_SYMMETRY") in ("false", "0"))
+        if not keeps_frame:
+            add("WARN", "CAP box set but nothing stops Q-Chem reorienting the molecule (the box stays at the "
+                        "input origin); centre the molecule and set SYMMETRY false / SYM_IGNORE TRUE, unless "
+                        "your input is already in Q-Chem's standard orientation", "eom-cc §5a")
+
+    # Projected CAP (PROJ_CAP 3): densities for pyopencap are exported only with GUI = 2.
+    # CC_TRANS_PROP is not needed: the manual (6.3, p. 583) exports them with GUI = 2 + PROJ_CAP 3,
+    # and the group's working EOM-IP runs did not set it.
+    if ccval("PROJ_CAP") == "3" and val("GUI") != "2":
+        add("INFO", "PROJ_CAP 3 without GUI = 2: Q-Chem prints its own trajectories, but the state and "
+                    "transition densities pyopencap needs are written to the .fchk only with GUI = 2",
+            "pyopencap §1")
+
+    # EOM_USER_GUESS traps.
+    if val("EOM_USER_GUESS") in ("true", "1"):
+        if has_dip:
+            add("WARN", "EOM_USER_GUESS with DIP states crashed (double free) at the DIP stage in the group's "
+                        "runs; use EOM_SHIFT (units of 1e-3 Eh) instead", "eom-cc §5")
+        if ccval("PROJ_CAP") == "3":
+            add("WARN", "EOM_USER_GUESS with projected CAP: only the guessed roots are printed, but pyopencap "
+                        "needs all N states; aim the roots with EOM_SHIFT instead", "pyopencap §1")
 
     # Oscillator strengths need CC_TRANS_PROP.
     if any(k.startswith("EE") for k in eom_kinds) and val("CC_TRANS_PROP") not in ("true", "1"):
         add("INFO", "EE states without CC_TRANS_PROP = TRUE: no oscillator strengths will be printed", "eom-cc §4")
 
     # Frozen core: only true core.
-    if "N_FROZEN_CORE" in rem and rem["N_FROZEN_CORE"].lower() not in ("fc", "0"):
+    if "CC_FROZEN_CORE" in rem:
+        add("ERROR", "CC_FROZEN_CORE is not a Q-Chem keyword (the job crashed); use N_FROZEN_CORE", "eom-cc §2")
+    if "N_FROZEN_CORE" in rem and rem["N_FROZEN_CORE"].lower() not in ("fc", "0", "false"):
         add("INFO", f"N_FROZEN_CORE = {rem['N_FROZEN_CORE']}: freeze only true core; more can swap orbital "
                     "order between charge states", "eom-cc §2")
 
