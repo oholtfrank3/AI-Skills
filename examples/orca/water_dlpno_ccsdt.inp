@@ -1,0 +1,22 @@
+# Water DLPNO-CCSD(T)/cc-pVTZ single point (ORCA 6.x starter calculation)
+#
+# Run (parallel needs the full path):  $ORCADIR/orca water_dlpno_ccsdt.inp > water_dlpno_ccsdt.out
+# Expected (ORCA 6.1 tutorial "Single point energies", same geometry and keywords):
+#   E(0)                  -76.055469392 Eh   (HF reference)
+#   E(CORR)(corrected)     -0.268039017 Eh
+#   T1 diagnostic           0.006597252
+#   FINAL SINGLE POINT ENERGY  -76.330949256808 Eh
+# Not run here (ORCA not installed on the laptop); record runtime and version on first run.
+# %pal and %maxcore do not change the energy. Do not add TightPNO/TightSCF when comparing.
+# Skills: orca, troubleshooting (references/orca.md, Starter 3).
+
+! DLPNO-CCSD(T) cc-pVTZ cc-pVTZ/C
+
+%pal nprocs 4 end
+%maxcore 3000
+
+* xyz 0 1
+O  -3.56626  1.77639  0.00000
+H  -2.59626  1.77639  0.00000
+H  -3.88959  1.36040 -0.81444
+*

@@ -63,6 +63,7 @@ Use the user's own words where you can, list any assumptions you made (geometry,
 |---|---|---|---|---|
 | Structures, frequencies, binding/interaction, reaction or conformer energies (ground state) | dispersion-corrected hybrid DFT, triple-ζ | smaller basis, GFN2-xTB for screening | CCSD(T)/CBS, SAPT for the breakdown | `basics`, `psi4` (SAPT, CBS), `pyscf` |
 | Condensed phase, surfaces, liquids, periodic solids; ab initio MD of many atoms | periodic DFT-D in CP2K (GPW) | smaller cell or cutoff for screening | hybrid functional (ADMM), cluster models with EOM-CC for local energetics | `cp2k` |
+| Coupled-cluster-quality energies or excited states of molecules too big for canonical CCSD(T) / EOM-CCSD | DLPNO-CCSD(T) with TightPNO (ORCA) | NormalPNO, hybrid DFT-D4 with RIJCOSX | DLPNO-CCSD(T1), canonical CCSD(T) on a smaller model; STEOM / bt-PNO-STEOM-CCSD for excited states | `orca` |
 | Vertical excitation energies, UV-Vis, Rydberg states | EOM-EE-CCSD (Q-Chem) | TDDFT (range-separated functional), ADC(2) | a triples-corrected EOM method (check what Q-Chem / PySCF offers for EE) | `eom-cc` |
 | Ionization energies, hole states | EOM-IP-CCSD | ΔSCF, ADC(2) | EOM-IP-CCSD*, ΔCCSD(T), focal-point basis extrapolation | `eom-cc` |
 | Dications, two-hole final states | EOM-DIP-CCSD | ΔSCF / ΔMP2 | ΔCCSD(T) (for the lowest state per symmetry) | `eom-cc` |
@@ -99,7 +100,7 @@ A skill marked **pending** does not exist yet. For those codes, tell the user th
 
 Write the full plan to `PLAN_<short-name>.md` in the user's working directory. **In chat, keep it short:** say in two or three plain sentences what you suggest running first and why, roughly how long it will take, and point them to the file for details. Then ask one question, usually "Does that sound right, or should we change anything?" Walk through the details only if they ask.
 
-**End with a short "Sources" list** (paper, manual section or forum thread, with links) for the method choice and any reference values you quoted. Put the same list in the plan file.
+**End with a short "Sources" list** (paper, manual section or forum thread, with links) for the method choice and any reference values you quoted. For the papers, start from the topic-sorted reading list in `troubleshooting/references/literature.md`. Put the same list in the plan file.
 
 The plan file should include:
 

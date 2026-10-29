@@ -2,6 +2,15 @@
 
 Last updated: 2026-10-28. Exported from Owen's Zotero collections, grouped by the plugin's topics, oldest first. Citations only: get PDFs through the library or the DOI. Use this to point a user to a primary source or review, and say which paper a statement comes from; don't summarize a paper you haven't read.
 
+## The group's own papers
+*Cite these first when the question is about TiDES or the group's ICD work.*
+
+- Rohan, Suarez, Clothier & Kretchmer (2026). TiDES: A time-dependent electronic structure code for real-time electron and spin dynamics. *The Journal of Chemical Physics* [doi:10.1063/5.0336359](https://doi.org/10.1063/5.0336359) (preprint [chemrxiv.15001515](https://doi.org/10.26434/chemrxiv.15001515/v1))
+- Wang, Manis, Rohan, Orlando & Kretchmer (2024). Modeling Intermolecular Coulombic Decay with Non-Hermitian Real-Time Time-Dependent Density Functional Theory. *The Journal of Physical Chemistry Letters* [doi:10.1021/acs.jpclett.4c01146](https://doi.org/10.1021/acs.jpclett.4c01146)
+- Iskandar, Wang, Suarez, Rohan, Larsen et al. (2026). Revealing ultrafast proton-transfer-mediated autoionization as a source of low-energy electrons in hydrogen-bonded systems. *Nature Communications* [doi:10.1038/s41467-026-73415-3](https://doi.org/10.1038/s41467-026-73415-3)
+- Manis, Wang, Rohan et al. (2026). Dynamics and Energy Relaxation of Formic Acid Dimers Following Inner Valence Ionization. *The Journal of Physical Chemistry Letters* [doi:10.1021/acs.jpclett.6c03064](https://doi.org/10.1021/acs.jpclett.6c03064)
+- Yehorova & Kretchmer (2023). A multi-fragment real-time extension of projected density matrix embedding theory: Non-equilibrium electron dynamics in extended systems. *The Journal of Chemical Physics* [doi:10.1063/5.0146973](https://doi.org/10.1063/5.0146973)
+
 ## Complex absorbing potentials and absorbing boundaries
 *Used by: eom-cc §5–5a, pyopencap. 29 items.*
 
