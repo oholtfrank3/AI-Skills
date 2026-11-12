@@ -71,7 +71,8 @@ Use the user's own words where you can, list any assumptions you made (geometry,
 | Decay width Γ / lifetime (ICD, ETMD, Auger, resonances) | CAP-EOM-CCSD (Q-Chem) with η trajectories | Fermi-golden-rule / virtual-photon estimates for trends | Fano-ADC + Stieltjes (not on PACE) | `eom-cc` §5–5a; `pyopencap` |
 | Electron dynamics, attosecond charge migration, field-driven response | RT-TDDFT in TiDES | — | TD-CASCI (no self-interaction error) | `tides` |
 | Electrons + nuclei, fs–ps, few-atom system | surface hopping (SHARC) on ab initio states | Ehrenfest (TiDES) | multiple decoherence schemes; FSSH vs CSDM | `sharc` |
-| Hole/charge transport in a large cluster, surface or solid | model Hamiltonian (e.g. DIM) parametrized and validated on EOM-CC, dynamics in SHARC | static site-energy map from EOM-IP clusters | blind validation points the model never saw | `sharc` |
+| Hole/charge transport in a large cluster, surface or solid | model Hamiltonian (e.g. DIM) parametrized and validated on EOM-CC, dynamics in SHARC | static site-energy map from EOM-IP clusters | blind validation points the model never saw | `dim`, `sharc` |
+| Exciton (excimer, Rydberg state) transport in a large rare-gas cluster or solid | Di-DIM exciton model on EOM-EE-CCSD pair curves (with the 4p partners), dynamics in SHARC | Ar₂* curves + linear Ar₃* EOM benchmark | the Ar₃* benchmark picks the diabatization | `di-dim`, `sharc` |
 
 A skill marked **pending** does not exist yet. For those codes, tell the user that the plan needs review by someone who runs that code. Do not fill the gap with generic advice presented as group practice.
 
