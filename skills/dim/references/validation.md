@@ -10,7 +10,7 @@ From the group's Ar 3s-hole model (validated) and the checklist written for the 
 | 4 | Blind coupling test | W from DIM vs EOM on a new geometry | +4.1 / −3.6 / +6.4 meV | ✅ |
 | 5 | Diabaticity | state reassignments over trajectory frames | 0 in 26k frames | ✅ |
 | 6 | Gradients | analytic vs finite difference | max 1.6e-6 eV/Å (3p code) | ✅ |
-| 7 | One-charge polarization | bulk value vs experiment (Ar 2p core-ion relaxation, Wurth et al., PRB 47, 6697 (1993)) | 0.96–1.0 eV vs ≈ 1.0 eV | ✅ |
+| 7 | One-charge polarization | bulk value vs experiment (Ar 2p core-ion relaxation, Wurth et al., PRB 47, 6697 (1993); localized core hole, so no bandwidth correction) | 0.96–1.0 eV vs ≈ 1.0 eV | ✅ |
 | 8 | Two-charge screening | DIM vs ΔMP2 second-shell dication shift | ratio 1.00 ± 0.08 | ✅ |
 | 9 | Surface penalty | DIM vs EOM for top-layer vs subsurface sites | 95/113 vs 94/109 meV (pairwise 154/193) | ✅ |
 | 10 | Molecule shifts, blind | several distances and orientations, incl. a sign flip | MAE 4.5, max 7.2 meV; H-down +165 vs +173 | ✅ |
@@ -28,6 +28,7 @@ From the group's Ar 3s-hole model (validated) and the checklist written for the 
 
 - Atomic spin-orbit limit: Ar⁺ ²P₃/₂–²P₁/₂ 0.177 eV. A CASSCF+RASSI-AMFI test gave 0.155 eV (−12 %), so check the SO source.
 - Linear symmetric Ar₃⁺ minimum against higher-level theory.
+- **Sign of the hopping blocks:** equilateral Ar₃⁺ and tetrahedral Ar₄⁺ against EOM-IP-CCSD (degeneracy of the lowest levels). A dimer test cannot catch a sign error, and linear trimers can't either. For p-sites the Σ and Π blocks follow orbital parity (`building.md` §2), not the s-hole rule.
 - Ar₂⁺ spectroscopic constants (Rₑ, Dₑ) for all Hund's case (c) states.
 
 ## Literature

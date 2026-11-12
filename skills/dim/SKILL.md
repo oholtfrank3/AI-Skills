@@ -28,9 +28,9 @@ For a neutral exciton (an excited, not ionized, atom moving through the solid) u
 
 ## Facts you'll need most often
 
-- Hopping W = ½(V_g − V_u) from the ion-dimer curves; for rare-gas holes W > 0 and the hole sits at the **lowest** eigenvalue.
+- Hopping W = ½(V_g − V_u) from the ion-dimer curves for an s-hole; for rare-gas holes W > 0 and the hole sits at the **lowest** eigenvalue. For p-holes the sign follows orbital parity (the Σ and Π blocks are ½(V_u − V_g)): see `references/building.md`. A dimer can't catch a sign error; an equilateral trimer can.
 - Polarization must be many-body (self-consistent Thole induced dipoles, experimental α), with the induction tail removed from the pair curves. Pairwise induction put Ar surface sites 40–60 % too high.
-- Validate blind against EOM-CC on small clusters (aim 1–5 meV), plus one large-system number (Ar: bulk polarization of one charge ≈ 1.0 eV).
+- Validate blind against EOM-CC on small clusters (aim 1–5 meV), plus one large-system number (Ar: bulk polarization of one localized charge ≈ 1.0 eV, from 2p core ionization).
 - In dynamics, report wavefunction populations, and both a reflecting and an absorbing edge.
 
 Sources: Ellison, JACS 85, 3540 (1963); Kuntz & Valldorf, Z. Phys. D 8, 195 (1988); Bonhommeau, Halberstadt & Buck, Int. Rev. Phys. Chem. 26, 353 (2007); Zhu, Nangia, Jasper & Truhlar, JCP 121, 7658 (2004) (CSDM); group validation notes (2026).

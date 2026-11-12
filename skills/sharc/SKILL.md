@@ -28,7 +28,7 @@ Before setting anything up, check with `method-selection` that surface hopping i
 
 Check each keyword against the manual of the SHARC version you run.
 
-- **Report wavefunction populations, never FSSH active-state fractions.** For delocalized carriers they disagreed by 2–3×, even with EDC. In one test the active state stayed on a site in 8/8 runs while the wavefunction did in 1/8. If FSSH and wavefunction populations disagree, FSSH is internally inconsistent there. CSDM has no such split.
+- **Report wavefunction populations as the observable; show FSSH active-state fractions only next to them, as a consistency diagnostic.** For delocalized carriers they disagreed by 2–3×, even with EDC. In one test the active state stayed on a site in 8/8 runs while the wavefunction did in 1/8. If FSSH and wavefunction populations disagree, FSSH is internally inconsistent there. CSDM has no such split.
 - **Pure Ehrenfest blew up in a dense manifold.** It gave drifts of 15 and 73 meV, and one run reached ~60 eV. Keep it as a control on a few seeds.
 - **CSDM parameters: use Truhlar's values (E0 = 0.1 Eh, C = 1) and do not tune them.** E0 = 0.05 or 0.02 Eh changed a 60 fs population from 0.08 to 0.72–0.75 and did not fix drift.
 - **Naming trap:** `decoherence_param_alpha` = E0 in Hartree, and `decoherence_param_beta` = C, which is dimensionless. The log prints "Hartree" for beta anyway.
