@@ -28,7 +28,7 @@ From the group's Ar 3s-hole model (validated) and the checklist written for the 
 
 - Atomic spin-orbit limit: Ar⁺ ²P₃/₂–²P₁/₂ 0.177 eV. A CASSCF+RASSI-AMFI test gave 0.155 eV (−12 %), so check the SO source.
 - Linear symmetric Ar₃⁺ minimum against higher-level theory.
-- **Sign of the hopping blocks:** equilateral Ar₃⁺ and tetrahedral Ar₄⁺ against EOM-IP-CCSD (degeneracy of the lowest levels). A dimer test cannot catch a sign error, and linear trimers can't either. For p-sites the Σ and Π blocks follow orbital parity (`building.md` §2), not the s-hole rule.
+- **Sign of the hopping blocks:** equilateral Ar₃⁺ and tetrahedral Ar₄⁺ against EOM-IP-CCSD (spin-free level pattern and energies). A dimer cannot catch an overall sign error (it does catch a relative Σ/Π error once spin-orbit is on), and linear trimers are only weakly sensitive, since the 1–3 hopping at twice the bond length is tiny. For p-sites the Σ and Π blocks follow orbital parity (`building.md` §2), not the s-hole rule.
 - Ar₂⁺ spectroscopic constants (Rₑ, Dₑ) for all Hund's case (c) states.
 
 ## Literature
